@@ -1,6 +1,0 @@
-c:\users\hpatki\documents\visual studio 2012\Projects\RestFramework\RestFramework\bin\Debug\RestFramework.exe.config
-c:\users\hpatki\documents\visual studio 2012\Projects\RestFramework\RestFramework\bin\Debug\RestFramework.exe
-c:\users\hpatki\documents\visual studio 2012\Projects\RestFramework\RestFramework\bin\Debug\RestFramework.pdb
-c:\users\hpatki\documents\visual studio 2012\Projects\RestFramework\RestFramework\obj\Debug\RestFramework.exe
-c:\users\hpatki\documents\visual studio 2012\Projects\RestFramework\RestFramework\obj\Debug\RestFramework.pdb
-c:\users\hpatki\documents\visual studio 2012\Projects\RestFramework\RestFramework\obj\Debug\RestFramework.csprojResolveAssemblyReference.cache
