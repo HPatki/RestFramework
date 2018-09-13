@@ -8,13 +8,13 @@ using RestFramework.Annotations;
 
 namespace RestFramework.Interface
 {
-    [ControllerAttribute ("test")]
+    [RouteAttribute ("test")]
     public class Test
     {
-        [ControllerMethodAttribute("/method1/{userParam}?QueryParam=")]
-        public void testMethod1([MethodBodyParam("User")] String user, [MethodRequestParam("userParam")]String usrParam)
+        [EndPointAttribute("/method1/{userParam}?QueryParam=")]
+        public void testMethod1([BodyQueryParam("User")] String user, [PathVariable("userParam")]String usrParam)
         {
-
+            System.Console.WriteLine ("Hello User" + user);
         }
     }
 }

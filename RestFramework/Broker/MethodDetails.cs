@@ -4,16 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Reflection;
 using RestFramework.Annotations;
 
 namespace RestFramework.Broker
 {
-    class MethodDetails
+    sealed class MethodDetails
     {
         String                      mMethodName;
-        List<MethodBodyParam>       mBodyParamDetails;
-        List<MethodQueryParam>      mQueryParamDetails;
-        List<MethodRequestParam>    mRequestParamDetails;
+        MethodInfo                  m_MethodInfo;
+        List<BodyQueryParam>       mBodyParamDetails = new List<BodyQueryParam>();
+        List<PathQueryVariable>      mQueryParamDetails = new List<PathQueryVariable>();
+        List<PathVariable>    mRequestParamDetails = new List<PathVariable>();
 
         public String MethodName 
         {
@@ -21,17 +23,23 @@ namespace RestFramework.Broker
             get {return mMethodName; }
         }
 
-        public void AddBodyParam(MethodBodyParam param)
+        public MethodInfo MethodInfo
+        {
+            set {m_MethodInfo=value;}
+            get { return m_MethodInfo; }
+        }
+
+        public void AddBodyParam(BodyQueryParam param)
         {
             mBodyParamDetails.Add(param);
         }
 
-        public void AddQueryParam(MethodQueryParam param)
+        public void AddQueryParam(PathQueryVariable param)
         {
             mQueryParamDetails.Add(param);
         }
 
-        public void AddRequestParam(MethodRequestParam param)
+        public void AddRequestParam(PathVariable param)
         {
             mRequestParamDetails.Add(param);
         }

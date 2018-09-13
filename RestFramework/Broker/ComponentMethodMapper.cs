@@ -6,33 +6,60 @@ using System.Threading.Tasks;
 
 using System.Reflection;
 using RestFramework.Annotations;
+using RestFramework.Interface;
 
 namespace RestFramework.Broker
 {
     sealed class ComponentMethodMapper
     {
-        private Object mSingleTonInstance;
-        private Dictionary<String, MethodDetails> mMethods;
-
-        public ComponentMethodMapper(Type T)
+        public Delegate     m_delegate;
+        private MethodInfo  m_methodInfo;
+        List<Param>         m_SequenceOfParams = new List<Param>();
+        
+        public void AddMethodDetails(object T, MethodInfo info)
         {
-            mSingleTonInstance = Activator.CreateInstance(T);
-            mMethods = new Dictionary<string, MethodDetails>();
-        }
+            m_methodInfo = info;
 
-        public void AddMethodDetails(ControllerMethodAttribute MethodAttrib, MemberInfo info)
-        {
-            ParameterInfo[] paramInfo = ((MethodInfo)info).GetParameters();
+            m_delegate = Delegate.CreateDelegate(Program.getDelegateFactory().CreateDelegateType(info), 
+                T, m_methodInfo) ;
 
-            MethodDetails newOne = new MethodDetails();
-            newOne.MethodName =  info.Name;
-            mMethods.Add(MethodAttrib.Route, newOne);
+            ParameterInfo[] paramInfo = m_methodInfo.GetParameters();
 
             foreach (ParameterInfo Param in paramInfo)
             {
-                object[] bodyParams = Param.GetCustomAttributes(typeof(MethodBodyParam), false);
-                object[] QueryParams = Param.GetCustomAttributes(typeof(MethodQueryParam), false);
-                object[] RequestParams = Param.GetCustomAttributes(typeof(MethodRequestParam), false);
+                object[] bodyParams = Param.GetCustomAttributes(typeof(BodyQueryParam), false);
+                if (0 != bodyParams.Length)
+                {
+                    var param = bodyParams[0] as Param;
+                    m_SequenceOfParams.Add(param);
+                    continue;
+                }
+
+                object[] PQueryParams = Param.GetCustomAttributes(typeof(PathQueryVariable), false);
+                if (0 != PQueryParams.Length)
+                {
+                    var param = PQueryParams[0] as Param;
+                    m_SequenceOfParams.Add(param);
+                    continue;
+                }
+
+                object[] BQueryParams = Param.GetCustomAttributes(typeof(BodyQueryParam), false);
+                if (0 != BQueryParams.Length)
+                {
+                    var param = BQueryParams[0] as Param;
+                    m_SequenceOfParams.Add(param);
+                    continue;
+                }
+
+                object[] RequestParams = Param.GetCustomAttributes(typeof(PathVariable), false);
+                {
+                    if (0 != RequestParams.Length)
+                    {
+                        var param = RequestParams[0] as Param;
+                        m_SequenceOfParams.Add(param);
+                        continue;
+                    }
+                }
             }
         }
     }

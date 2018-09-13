@@ -1,23 +1,65 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Net;
+using System.Net.Http;
+
 using System.Text;
 using System.Threading.Tasks;
 
-using System.ServiceModel.Channels;
-using System.ServiceModel.Web;
-using System.Web;
-
 using RestFramework.Interface;
+using RestFramework.Transport;
 
 namespace RestFramework.Broker
 {
-    class BrokerImpl : IBroker
+    sealed class BrokerImpl : IBroker
     {
-        public Message GenericGet1()
+        private HttpRequest m_Request;
+
+        public BrokerImpl(HttpRequest request)
         {
-            String message = "{\"Name\":\"Harshad\"}";
-            return WebOperationContext.Current.CreateJsonResponse<String> (message);
+            m_Request = request;
+        }
+
+        private String getURL ()
+        {
+            return m_Request.getRequestURI();
+        }
+
+        private String getQuery()
+        {
+            return "";
+        }
+
+        private Boolean getHeaders() 
+        {
+            return false;
+        }
+
+        public String GenericGet()
+        {
+            String message = "";
+
+            return message;
+        }
+
+        public String GenericPost()
+        {
+            String message = "";
+            
+            return message;
+        }
+
+        public String GenericPut()
+        {
+            String message = "";
+           
+            return message;
+        }
+
+        public String GenericDelete()
+        {
+            String message = "";
+            
+            return message;
         }
     }
 }

@@ -9,13 +9,17 @@ using RestFramework.Annotations;
 
 namespace RestFramework.Broker
 {
-    class ControllerFactory
+    sealed class ControllerFactory
     {
-        Dictionary<String, ComponentMethodMapper> mMapOfControllers;
+        private Dictionary<String, ComponentMethodMapper> mMapOfGetControllers;
+        private Dictionary<String, ComponentMethodMapper> mMapOfPostControllers;
+        private Dictionary<String, ComponentMethodMapper> mMapOfPutControllers;
 
         public ControllerFactory()
         {
-            mMapOfControllers = new Dictionary<string, ComponentMethodMapper>();
+            mMapOfGetControllers = new Dictionary<string, ComponentMethodMapper>();
+            mMapOfPostControllers = new Dictionary<string, ComponentMethodMapper>();
+            mMapOfPutControllers = new Dictionary<string, ComponentMethodMapper>();
         }
 
         public void ConstructSingleTons()
@@ -37,29 +41,47 @@ namespace RestFramework.Broker
 
             foreach (Type T in types)
             {
-                ComponentMethodMapper obj = null;
                 System.Console.WriteLine(T.Name);
 
-                Object[] AttribOnClass = T.GetCustomAttributes(typeof(ControllerAttribute), false);
+                //detecting controller class 
+                Object[] AttribOnClass = T.GetCustomAttributes(typeof(RouteAttribute), false);
 
                 if (AttribOnClass.Length > 0)
                 {
+                    var obj = Activator.CreateInstance(T);
+
                     MemberInfo[] mInfo = T.GetMembers();
 
                     foreach (MemberInfo info in mInfo)
                     {
-                        Attribute AttrbOnMethod = info.GetCustomAttribute(typeof(ControllerMethodAttribute), false);
+                        Attribute AttrbOnMethod = info.GetCustomAttribute(typeof(EndPointAttribute), false);
                        
                         if (null != AttrbOnMethod)
                         {
-                            ControllerMethodAttribute CntrlMthdAttr = (ControllerMethodAttribute)AttrbOnMethod;
-
-                            if (null == obj)
+                            EndPointAttribute CntrlMthdAttr = (EndPointAttribute)AttrbOnMethod;
+                            Dictionary<String,ComponentMethodMapper> refHandle = null; 
+                            switch (CntrlMthdAttr.Method)
                             {
-                                mMapOfControllers.Add(((ControllerAttribute)AttribOnClass[0]).Route, obj=new ComponentMethodMapper(T));
+                                case "GET":
+                                    refHandle = mMapOfGetControllers;
+                                    break;
+                                case "POST":
+                                    refHandle = mMapOfPostControllers;
+                                    break;
+                                case "PUT":
+                                    refHandle = mMapOfPutControllers;
+                                    break;
+                                default:
+                                    throw new Exception();
+
                             }
 
-                            obj.AddMethodDetails(CntrlMthdAttr, info);
+                            var hdlr = new ComponentMethodMapper();
+                            hdlr.AddMethodDetails(obj, info as MethodInfo);
+
+                            refHandle.Add(((RouteAttribute)AttribOnClass[0]).Route + CntrlMthdAttr.Route,
+                                        hdlr);
+
                             
                         }
                     }
