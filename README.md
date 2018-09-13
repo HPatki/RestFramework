@@ -1,6 +1,5 @@
 # RestFramework
-WCF C# based REST framework
 
-This is the Microsoft WCF based framework for developing REST applications. It's very similar to 'Spring Boot'. 
+C# based REST framework
 
-Makes use of Self-hosted WCF mechanism for hosting the application
+Microsoft .NET based framework for developing REST applications. It's very similar to 'Spring Boot'. 
