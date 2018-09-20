@@ -45,9 +45,6 @@
       <HintPath>C:\Users\S.PATKI\AppData\Local\Microsoft\VisualStudio\11.0\Extensions\z4crwrnd.ddz\NUnit3.TestAdapter.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="TechTalk.SpecFlow">
-      <HintPath>C:\Users\S.PATKI\AppData\Local\Microsoft\VisualStudio\11.0\Extensions\jijlqk1u.mpz\TechTalk.SpecFlow.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -62,18 +59,14 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="ParseHTTPRequest.feature.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ParseHTTPRequest.feature</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnitTest1.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ParseHTTPRequest.feature">
-      <Generator>SpecFlowSingleFileGenerator</Generator>
-      <LastGenOutput>ParseHTTPRequest.feature.cs</LastGenOutput>
-    </None>
+    <ProjectReference Include="..\RestFramework\RestFramework.csproj">
+      <Project>{aa1259f2-dd70-4e20-a501-690093cd43a3}</Project>
+      <Name>RestFramework</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

@@ -9,7 +9,7 @@ using RestFramework.Interface;
 namespace RestFramework.Annotations
 {
     [AttributeUsage(AttributeTargets.Class)]
-    sealed class RouteAttribute : Attribute, Param
+    sealed public class RouteAttribute : Attribute, Param
     {
         String mRoute;
 

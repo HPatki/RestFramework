@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using System.Reflection;
 using RestFramework.Annotations;
+using RestFramework.Helpers;
 
 namespace RestFramework.Broker
 {
@@ -24,15 +25,25 @@ namespace RestFramework.Broker
 
         public void ConstructSingleTons()
         {
-            //retrieve classes with given attribute and form the map
-            Assembly exA = System.Reflection.Assembly.GetExecutingAssembly();
-            ScanAssemblyForAttributes(exA);
+            AppDomain defaultDomain = AppDomain.CurrentDomain;
+            Assembly[] loadedAssemblies = defaultDomain.GetAssemblies();
 
-            foreach (System.Reflection.AssemblyName AN in System.Reflection.Assembly.GetExecutingAssembly().GetReferencedAssemblies())
+            foreach (Assembly assmbly in loadedAssemblies)
             {
-                System.Reflection.Assembly A = System.Reflection.Assembly.Load(AN.ToString());
-                ScanAssemblyForAttributes(A);
+                //retrieve classes with given attribute and form the map
+                ScanAssemblyForAttributes(assmbly);
+
+                //foreach (System.Reflection.AssemblyName AN in System.Reflection.Assembly.GetExecutingAssembly().GetReferencedAssemblies())
+                //{
+                //    System.Reflection.Assembly A = System.Reflection.Assembly.Load(AN.ToString());
+                //    ScanAssemblyForAttributes(A);
+                //}
             }
+        }
+
+        public ComponentMethodMapper getMethodMapper(Method mthd, String URI)
+        {
+            return mMapOfGetControllers[URI];
         }
 
         private void ScanAssemblyForAttributes(Assembly exA)
@@ -62,13 +73,13 @@ namespace RestFramework.Broker
                             Dictionary<String,ComponentMethodMapper> refHandle = null; 
                             switch (CntrlMthdAttr.Method)
                             {
-                                case "GET":
+                                case Method.GET:
                                     refHandle = mMapOfGetControllers;
                                     break;
-                                case "POST":
+                                case Method.POST:
                                     refHandle = mMapOfPostControllers;
                                     break;
-                                case "PUT":
+                                case Method.PUT:
                                     refHandle = mMapOfPutControllers;
                                     break;
                                 default:

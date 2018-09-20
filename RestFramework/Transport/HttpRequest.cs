@@ -4,15 +4,12 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
+using RestFramework.Helpers;
+
 namespace RestFramework.Transport
 {
     class HttpRequest
     {
-        internal enum Method
-        {
-            POST, GET, PUT, DELETE, ERROR
-        }
-
         private class HttpHeader
         {
             private static Regex    m_parser = new Regex("\r\n");

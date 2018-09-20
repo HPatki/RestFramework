@@ -4,16 +4,17 @@ using System.Text;
 using System.Threading.Tasks;
 
 using RestFramework.Interface;
+using MethodType = RestFramework.Helpers.Method;
 
 namespace RestFramework.Annotations
 {
     [AttributeUsage(AttributeTargets.Method)]
-    sealed class EndPointAttribute : Attribute, Param
+    sealed public class EndPointAttribute : Attribute, Param
     {
-        String m_Route;
-        String m_MethodType;
-        String m_Produces;
-        String m_Consumes;
+        String      m_Route;
+        MethodType  m_MethodType;
+        String      m_Produces;
+        String      m_Consumes;
 
         /// <summary>
         /// 
@@ -21,10 +22,16 @@ namespace RestFramework.Annotations
         /// <param name="route">Route</param>
         /// <param name="Method">Method</param>
         /// <param name="produces">Produces</param>
-        public EndPointAttribute(String route, String Method = "GET", String consumes="application/octet", String produces = "application/octet")
+        public EndPointAttribute(String route, String method = "GET", String consumes="application/octet", String produces = "application/octet")
         {
             m_Route = route;
-            m_MethodType = Method.ToUpper();
+            switch(method)
+            {
+                case "GET":
+                    m_MethodType = MethodType.GET;
+                    break;
+            }
+            
             m_Produces = produces;
             m_Consumes = consumes;
         }
@@ -34,7 +41,7 @@ namespace RestFramework.Annotations
             get { return m_Route; }
         }
 
-        internal String Method
+        internal MethodType Method
         {
             get { return m_MethodType; }
         }

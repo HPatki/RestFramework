@@ -9,7 +9,7 @@ using RestFramework.Interface;
 namespace RestFramework.Annotations
 {
     [AttributeUsage (AttributeTargets.Parameter)]
-    sealed class BodyQueryParam : Attribute, Param
+    sealed public class BodyQueryParam : Attribute, Param
     {
         String mMethodArgs;
 

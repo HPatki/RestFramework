@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using RestFramework.Interface;
 using RestFramework.Transport;
+using RestFramework.Helpers;
 
 namespace RestFramework.Broker
 {
@@ -34,29 +35,18 @@ namespace RestFramework.Broker
             return false;
         }
 
-        public String GenericGet()
+        public String Process()
         {
-            String message = "";
+            Method mthd = m_Request.getMethod();
 
-            return message;
-        }
+            switch (mthd)
+            {
+                case Method.GET:
+                    Program.getControllerFactory().getMethodMapper(Method.GET, m_Request.getRequestURI());
+                    break;
+            }
 
-        public String GenericPost()
-        {
-            String message = "";
-            
-            return message;
-        }
 
-        public String GenericPut()
-        {
-            String message = "";
-           
-            return message;
-        }
-
-        public String GenericDelete()
-        {
             String message = "";
             
             return message;

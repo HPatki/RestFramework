@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace RestFramework.Helpers
 {
-    sealed class DelegateTypeFactory
+    sealed internal class DelegateTypeFactory
     {
         private readonly ModuleBuilder m_module;
  

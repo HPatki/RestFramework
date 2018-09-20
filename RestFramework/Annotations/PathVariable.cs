@@ -9,7 +9,7 @@ using RestFramework.Interface;
 namespace RestFramework.Annotations
 {
     [AttributeUsage(AttributeTargets.Parameter)]
-    sealed class PathVariable : Attribute, Param
+    sealed public class PathVariable : Attribute, Param
     {
         String m_varname;
 

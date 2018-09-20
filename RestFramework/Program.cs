@@ -17,43 +17,54 @@ using ConfigMgr = System.Configuration.ConfigurationManager;
 
 namespace RestFramework
 {
-    class Program
+    public class Program
     {
         internal static int m_maxPayLoad;
         private static DelegateTypeFactory  m_delegateFactory;
         private static ControllerFactory    m_Controllers;
 
         //public static AppSettings GetAppSettings () { return m_appSettings; }
-        public static DelegateTypeFactory getDelegateFactory ()
+
+        public static void createFactories()
+        {
+            m_delegateFactory = new DelegateTypeFactory();
+            m_Controllers = new ControllerFactory();
+            m_Controllers.ConstructSingleTons();
+        }
+
+        internal static DelegateTypeFactory getDelegateFactory ()
         {
             return m_delegateFactory;
+        }
+
+        internal static ControllerFactory getControllerFactory()
+        {
+            return m_Controllers;
         }
 
         static void Main(string[] args)
         {
             m_maxPayLoad = Int32.Parse(ConfigMgr.AppSettings["maxPayLoad"]);
-            m_delegateFactory = new DelegateTypeFactory();
-            m_Controllers = new ControllerFactory();
-            m_Controllers.ConstructSingleTons();
+            createFactories();
 
             RestFramework.Transport.Socket sock = new Transport.Socket("127.0.0.1",15990);
             sock.StartListening();
 
-            MethodInfo info = typeof(HostContainer).GetMethod("addService");
-            ParameterInfo [] paramss = info.GetParameters();
+            //MethodInfo info = typeof(HostContainer).GetMethod("addService");
+            //ParameterInfo [] paramss = info.GetParameters();
             //RuntimeParameterInfo
-            Object[] methodArgs = new Object[paramss.Length];
-            for (int i = 0; i < paramss.Length; ++i)
-            {
-                methodArgs[i] = Convert.ChangeType(null, paramss[i].ParameterType);
-            }
+            //Object[] methodArgs = new Object[paramss.Length];
+            //for (int i = 0; i < paramss.Length; ++i)
+            //{
+            //    methodArgs[i] = Convert.ChangeType(null, paramss[i].ParameterType);
+            //}
             
-           HostContainer hosted = new HostContainer(typeof(BrokerImpl));
-           //info.Invoke(hosted, methodArgs);
+            //HostContainer hosted = new HostContainer(typeof(BrokerImpl));
+            //info.Invoke(hosted, methodArgs);
 
-            hosted.addService(typeof(IBroker), "http://192.168.0.25", new WebHttpBinding(), new WebHttpBehavior());
+            //hosted.addService(typeof(IBroker), "http://192.168.0.25", new WebHttpBinding(), new WebHttpBehavior());
 
-            hosted.StartService();
+            //hosted.StartService();
         }
     }
 }

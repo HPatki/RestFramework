@@ -3,6 +3,8 @@ using System.Text.RegularExpressions;
 using System.Text;
 using System.IO;
 using SystemSocket = System.Net.Sockets.Socket;
+using RestFramework.Interface;
+using RestFramework.Broker;
 
 namespace RestFramework.Transport
 {
@@ -10,7 +12,7 @@ namespace RestFramework.Transport
     {
         private static Regex    m_parser = new Regex("\r\n\r\n");
         private HttpRequest     m_HttpRequest = new HttpRequest();
-
+        
         public void ListenSocketHandler(Object state) //have to confirm to delegate signature
         {   
             int runCountOfBytesRecvd = 0;
@@ -40,12 +42,18 @@ namespace RestFramework.Transport
                     {
                         var splittedByte = Encoding.UTF8.GetBytes(splitted[1]);
                         if (splittedByte.Length >= BodyLength)
-                            break;
+                        {
+                            ReadBody(0, handler, splittedByte);
+                        }
                         else
                         {
                             ReadBody(BodyLength - splittedByte.Length, handler, splittedByte);
-                            //hand off for further processing
                         }
+
+                        //hand off for further processing
+                        var lBroker = new BrokerImpl(m_HttpRequest);
+                        lBroker.Process();
+
                     }
                
                 }
@@ -89,9 +97,6 @@ namespace RestFramework.Transport
                 remainingBytes -= bytesRec;
                 m_HttpRequest.ConcatenateBodyContent(bytes);
             }
-
-            m_HttpRequest.GetBody();
-
         }
         
     }
