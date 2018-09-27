@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 using System.Reflection;
 using RestFramework.Annotations;
@@ -41,9 +41,30 @@ namespace RestFramework.Broker
             }
         }
 
-        public ComponentMethodMapper getMethodMapper(Method mthd, String URI)
+        public object[] getMethodMapper(Method mthd, String URI)
         {
-            return mMapOfGetControllers[URI];
+            object[] ret = new Object[2];
+
+            switch (mthd)
+            {
+                case Method.GET:
+                    foreach (String key in mMapOfGetControllers.Keys)
+                    {
+                        Regex parser = new Regex(key);
+                        ret[1] = parser.IsMatch(URI) == true ? mMapOfGetControllers[key] : null;  
+                        if (null != ret[1])
+                            break;
+                    }
+                    break;
+                case Method.POST:
+                    ret[1] = mMapOfPostControllers.ContainsKey(URI) == true ? mMapOfPostControllers[URI] : null;
+                    break;
+                case Method.PUT:
+                    ret[1] = mMapOfPutControllers.ContainsKey(URI) == true ? mMapOfPutControllers[URI] : null;
+                    break;
+            }
+
+            return ret;
         }
 
         private void ScanAssemblyForAttributes(Assembly exA)
@@ -87,13 +108,26 @@ namespace RestFramework.Broker
 
                             }
 
+                            //split the CntrlMthdAttr route to take only the context path 
+                            //void of path variables
+                            Regex parser = new Regex("[a-z A-z 0-9]*{[a-z A-z 0-9]*}");
+                            String[] str = parser.Split(CntrlMthdAttr.Route);
+                            StringBuilder bldr = new StringBuilder();
+                            for (int i = 0; i < str.Length; ++i)
+                            {
+                                bldr.Append(str[i]);
+                                if (i < str.Length - 1)
+                                    bldr.Append(".*");
+                            }
+
+                            String mapperKey = ((RouteAttribute)AttribOnClass[0]).Route +
+                                                bldr.ToString();
+
                             var hdlr = new ComponentMethodMapper();
-                            hdlr.AddMethodDetails(obj, info as MethodInfo);
+                            hdlr.AddMethodDetails(obj, info as MethodInfo, 
+                                ((RouteAttribute)AttribOnClass[0]).Route + CntrlMthdAttr.Route );
 
-                            refHandle.Add(((RouteAttribute)AttribOnClass[0]).Route + CntrlMthdAttr.Route,
-                                        hdlr);
-
-                            
+                            refHandle.Add(mapperKey, hdlr);
                         }
                     }
                 }

@@ -13,9 +13,9 @@ namespace RestFramework.Broker
     {
         String                      mMethodName;
         MethodInfo                  m_MethodInfo;
-        List<BodyQueryParam>       mBodyParamDetails = new List<BodyQueryParam>();
-        List<PathQueryVariable>      mQueryParamDetails = new List<PathQueryVariable>();
-        List<PathVariable>    mRequestParamDetails = new List<PathVariable>();
+        List<BodyQueryParam>        mBodyParamDetails = new List<BodyQueryParam>();
+        List<PathQueryVariable>     mQueryParamDetails = new List<PathQueryVariable>();
+        List<PathVariable>          mRequestParamDetails = new List<PathVariable>();
 
         public String MethodName 
         {

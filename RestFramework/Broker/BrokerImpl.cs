@@ -4,10 +4,12 @@ using System.Net.Http;
 
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using RestFramework.Interface;
 using RestFramework.Transport;
 using RestFramework.Helpers;
+using RestFramework.Annotations;
 
 namespace RestFramework.Broker
 {
@@ -38,16 +40,22 @@ namespace RestFramework.Broker
         public String Process()
         {
             Method mthd = m_Request.getMethod();
+            ComponentMethodMapper mpr = null;
+            String message = "";
+            
+            object[] ret = Program.getControllerFactory().getMethodMapper(mthd, m_Request.getRequestURI());
+            mpr = ret[1] as ComponentMethodMapper;
 
-            switch (mthd)
+            if (null != mpr)
             {
-                case Method.GET:
-                    Program.getControllerFactory().getMethodMapper(Method.GET, m_Request.getRequestURI());
-                    break;
+                object[] parameters = ExtractMethodParams.Extract(m_Request, mpr.getParamList());
+                message = (String)mpr.DynamicInvoke(parameters);
+            }
+            else
+            {
+                //raise error
             }
 
-
-            String message = "";
             
             return message;
         }

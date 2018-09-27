@@ -25,8 +25,15 @@ namespace RestFramework
 
         //public static AppSettings GetAppSettings () { return m_appSettings; }
 
+        public static void createServer()
+        {
+            RestFramework.Transport.Socket sock = new Transport.Socket("127.0.0.1",15990);
+            sock.StartListening();
+        }
+
         public static void createFactories()
         {
+            m_maxPayLoad = 1024; //Int32.Parse(ConfigMgr.AppSettings["maxPayLoad"]);
             m_delegateFactory = new DelegateTypeFactory();
             m_Controllers = new ControllerFactory();
             m_Controllers.ConstructSingleTons();
@@ -42,13 +49,13 @@ namespace RestFramework
             return m_Controllers;
         }
 
-        static void Main(string[] args)
-        {
-            m_maxPayLoad = Int32.Parse(ConfigMgr.AppSettings["maxPayLoad"]);
-            createFactories();
+        //static void Main(string[] args)
+        //{
+        //    m_maxPayLoad = Int32.Parse(ConfigMgr.AppSettings["maxPayLoad"]);
+        //    createFactories();
 
-            RestFramework.Transport.Socket sock = new Transport.Socket("127.0.0.1",15990);
-            sock.StartListening();
+        //    RestFramework.Transport.Socket sock = new Transport.Socket("127.0.0.1",15990);
+        //    sock.StartListening();
 
             //MethodInfo info = typeof(HostContainer).GetMethod("addService");
             //ParameterInfo [] paramss = info.GetParameters();
@@ -62,9 +69,9 @@ namespace RestFramework
             //HostContainer hosted = new HostContainer(typeof(BrokerImpl));
             //info.Invoke(hosted, methodArgs);
 
-            //hosted.addService(typeof(IBroker), "http://192.168.0.25", new WebHttpBinding(), new WebHttpBehavior());
+            //hosted.addService(typeof(IBroker), , new WebHttpBinding(), new WebHttpBehavior());
 
             //hosted.StartService();
-        }
+        //}
     }
 }
