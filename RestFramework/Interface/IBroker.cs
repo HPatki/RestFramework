@@ -10,7 +10,7 @@ namespace RestFramework.Interface
 {
     interface IBroker
     {
-        String Process();
+        void Process();
     }
 }
 

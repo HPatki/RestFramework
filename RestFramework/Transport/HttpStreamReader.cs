@@ -45,7 +45,16 @@ namespace RestFramework.Transport
 
                         if (1 < splitted.Length) //contains body part
                         {
-                            var splittedByte = Encoding.UTF8.GetBytes(splitted[1]);
+                            //BugFix-splitted will contain multiple parts all of which 
+                            //need to be considered to know how much of body has been
+                            //read. This was not happening
+                            StringBuilder Bldr = new StringBuilder (1024);
+
+                            foreach (String oneStr in splitted)
+                                Bldr.Append(oneStr);
+
+                            var splittedByte = Encoding.UTF8.GetBytes(Bldr.ToString());
+
                             if (splittedByte.Length >= BodyLength)
                             {
                                 ReadBody(0, handler, splittedByte);
@@ -62,8 +71,8 @@ namespace RestFramework.Transport
                         }
 
                         //hand off for further processing
-                        var lBroker = new BrokerImpl(m_HttpRequest);
-                        payload = lBroker.Process();
+                        var lBroker = new BrokerImpl(m_HttpRequest,handler);
+                        lBroker.Process();
                         cont = false;
                     }
                     else
@@ -72,7 +81,7 @@ namespace RestFramework.Transport
                     }
                 }
 
-                byte[] rr = System.Text.Encoding.ASCII.GetBytes("harshad suhas patki");
+                /*byte[] rr = System.Text.Encoding.ASCII.GetBytes("harshad suhas patki");
                 StringBuilder strBldr = new StringBuilder();
                 strBldr.Append("HTTP/1.1 200 OK\r\n");
                 strBldr.Append("accept-ranges: bytes\r\n");
@@ -92,7 +101,7 @@ namespace RestFramework.Transport
                 strBldr.Append(payload);
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(strBldr.ToString());
                 handler.Send(msg);
-                handler.Close();
+                handler.Close();*/
             }
             catch (Exception err)
             {

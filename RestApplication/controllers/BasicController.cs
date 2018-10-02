@@ -14,8 +14,10 @@ namespace RestApplication.controllers
         private static Random m_rndm = new Random();
 
         [EndPointAttribute ("/getName/{name}/dummy/{surname}")]
-        public String getName ([PathVariable("name")]String name, [PathVariable("surname")]String surname,
-            [PathQueryVariable("middlename")]String middleName, [PathQueryVariable("salutation")]String salutation)
+        public String getName ([PathVariable("name")]String name,
+            [PathQueryVariable("middlename")]String middleName, 
+            [PathVariable("surname")]String surname,
+            [PathQueryVariable("salutation")]String salutation)
         {
             return "Hello There " + name + " " + middleName + " " + surname; 
         }

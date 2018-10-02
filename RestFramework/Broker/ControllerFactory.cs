@@ -73,7 +73,7 @@ namespace RestFramework.Broker
 
             foreach (Type T in types)
             {
-                System.Console.WriteLine(T.Name);
+                //System.Console.WriteLine(T.Name);
 
                 //detecting controller class 
                 Object[] AttribOnClass = T.GetCustomAttributes(typeof(RouteAttribute), false);
