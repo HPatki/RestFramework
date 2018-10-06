@@ -9,20 +9,15 @@ using RestFramework.Interface;
 namespace RestFramework.Annotations
 {
     [AttributeUsage(AttributeTargets.Parameter)]
-    sealed public class PathVariable : Attribute, Param
+    sealed public class PathVariable : BaseAttribute
     {
         String  m_varname;
         Int32   m_posInURL;
         Type    m_type;
 
-        public PathVariable(String varname)
+        public PathVariable(String varname) : base (varname)
         {
-            m_varname = varname;
-        }
-
-        public String getName ()
-        {
-            return m_varname;
+            
         }
 
         public void setPosInURL(Int32 pos)
@@ -35,19 +30,5 @@ namespace RestFramework.Annotations
             return m_posInURL;
         }
 
-        public void setType(Type T)
-        {
-            m_type = T;
-        }
-
-        public Type getType()
-        {
-            return m_type;
-        }
-
-        public Object Convert(String parsedValue)
-        {
-            return parsedValue;
-        }
     }
 }

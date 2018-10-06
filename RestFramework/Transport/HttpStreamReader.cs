@@ -11,11 +11,11 @@ namespace RestFramework.Transport
     class HttpStreamReader
     {
         private static Regex    m_parser = new Regex("\r\n\r\n");
-        private HttpRequest     m_HttpRequest = new HttpRequest();
         
         public void ListenSocketHandler(Object state) //have to confirm to delegate signature
         {
             SystemSocket handler = (SystemSocket)state;
+            HttpRequest  httpRequest = new HttpRequest();
 
             try
             {
@@ -23,7 +23,7 @@ namespace RestFramework.Transport
 
                 String data = null, payload = null;
                 byte[] bytes = new byte[1024];
-                
+
                 // An incoming connection needs to be processed.
                 Boolean cont = true;
                 while (cont)
@@ -40,15 +40,15 @@ namespace RestFramework.Transport
                         //we may have read past the header end. If so, we need to split at the exact 
                         //header end. Rest of the contents belong to body if any
                         var splitted = m_parser.Split(data);
-                        m_HttpRequest.ConcatenateRawHeaderContent(splitted[0]);
-                        int BodyLength = m_HttpRequest.ExtractHeaders().GetLengthOfBody();
+                        httpRequest.ConcatenateRawHeaderContent(splitted[0]);
+                        int BodyLength = httpRequest.ExtractHeaders().GetLengthOfBody();
 
                         if (1 < splitted.Length) //contains body part
                         {
                             //BugFix-splitted will contain multiple parts all of which 
                             //need to be considered to know how much of body has been
                             //read. This was not happening
-                            StringBuilder Bldr = new StringBuilder (1024);
+                            StringBuilder Bldr = new StringBuilder(1024);
 
                             foreach (String oneStr in splitted)
                                 Bldr.Append(oneStr);
@@ -57,27 +57,28 @@ namespace RestFramework.Transport
 
                             if (splittedByte.Length >= BodyLength)
                             {
-                                ReadBody(0, handler, splittedByte);
+                                ReadBody(0, handler, splittedByte, httpRequest);
                             }
                             else
                             {
-                                ReadBody(BodyLength - splittedByte.Length, handler, splittedByte);
+                                ReadBody(BodyLength - splittedByte.Length, handler, splittedByte, httpRequest);
                             }
 
                         }
                         else
                         {
-                            ReadBody(BodyLength, handler, new byte[0]);
+                            ReadBody(BodyLength, handler, new byte[0], httpRequest);
                         }
 
-                        //hand off for further processing
-                        var lBroker = new BrokerImpl(m_HttpRequest,handler);
+                        //hand off for further processing & final response
+                        //this class is done with the request
+                        var lBroker = new BrokerImpl(httpRequest, handler);
                         lBroker.Process();
                         cont = false;
                     }
                     else
                     {
-                        m_HttpRequest.ConcatenateRawHeaderContent(data);
+                        httpRequest.ConcatenateRawHeaderContent(data);
                     }
                 }
 
@@ -128,18 +129,28 @@ namespace RestFramework.Transport
                 handler.Close();
             }
 
+            try
+            {
+                handler.Disconnect(false);
+                //handler.Close(5);
+            }
+            catch (Exception err)
+            {
+                System.Console.WriteLine("error disconnecting the socket::" + err.Message);
+                Environment.Exit(-1);
+            }
         }
 
-        private void ReadBody(int BytesToRead, SystemSocket handler, byte[] BodyContent)
+        private void ReadBody(int BytesToRead, SystemSocket handler, byte[] BodyContent, HttpRequest httpRequest)
         {
             byte[] bytes = new byte[1024];
             int remainingBytes = BytesToRead;
-            m_HttpRequest.ConcatenateBodyContent(BodyContent);
+            httpRequest.ConcatenateBodyContent(BodyContent);
             while (remainingBytes > 0)
             {
                 int bytesRec = handler.Receive(bytes);
                 remainingBytes -= bytesRec;
-                m_HttpRequest.ConcatenateBodyContent(bytes);
+                httpRequest.ConcatenateBodyContent(bytes);
             }
         }
         

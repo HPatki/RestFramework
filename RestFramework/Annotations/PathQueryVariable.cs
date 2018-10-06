@@ -8,45 +8,24 @@ using RestFramework.Interface;
 
 namespace RestFramework.Annotations
 {
-    sealed public class PathQueryVariable : Attribute, Param
+    sealed public class PathQueryVariable : BaseAttribute
     {
-        String m_varname;
         Int32 m_posInURL;
-        Type m_type;
-
-        public PathQueryVariable(String name)
+        
+        public PathQueryVariable(String name) : base (name)
         {
-            m_varname = name;
+            
         }
 
-        public String getName()
-        {
-            return m_varname;
-        }
-
-        public void setPosInURL(Int32 pos)
+        internal void setPosInURL(Int32 pos)
         {
             m_posInURL = pos;
         }
 
-        public Int32 getPosInURL()
+        internal Int32 getPosInURL()
         {
             return m_posInURL;
         }
 
-        public void setType(Type T)
-        {
-            m_type = T;
-        }
-
-        public Type getType()
-        {
-            return m_type;
-        }
-
-        public Object Convert(String parsedValue)
-        {
-            return parsedValue;
-        }
     }
 }

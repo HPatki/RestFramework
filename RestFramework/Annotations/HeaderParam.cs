@@ -9,8 +9,12 @@ using RestFramework.Interface;
 namespace RestFramework.Annotations
 {
     [AttributeUsage (AttributeTargets.Parameter)]
-    class HeaderParam : Attribute, Param
+    sealed public class HeaderParam : BaseAttribute
     {
+        public HeaderParam(String name)
+            : base(name)
+        {
 
+        }
     }
 }

@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Annotations\BaseAttribute.cs" />
     <Compile Include="Annotations\HeaderParam.cs" />
     <Compile Include="Annotations\RouteAttribute.cs" />
     <Compile Include="Annotations\EndPointAttribute.cs" />
@@ -57,16 +58,18 @@
     <Compile Include="Annotations\PathVariable.cs" />
     <Compile Include="Broker\BrokerImpl.cs" />
     <Compile Include="Broker\ComponentMethodMapper.cs" />
-    <Compile Include="Broker\ControllerFactory.cs" />
+    <Compile Include="Factories\ControllerFactory.cs" />
     <Compile Include="Broker\MethodDetails.cs" />
     <Compile Include="Container\HostContainer.cs" />
     <Compile Include="Exceptions\URLNotFound.cs" />
     <Compile Include="Helpers\DelegateTypeFactory.cs" />
     <Compile Include="Helpers\ExtractMethodParams.cs" />
+    <Compile Include="Helpers\MediaType.cs" />
     <Compile Include="Helpers\MessageInterceptor.cs" />
     <Compile Include="Helpers\Method.cs" />
+    <Compile Include="Helpers\StatusCodeDesc.cs" />
     <Compile Include="Interface\IBroker.cs" />
-    <Compile Include="Interface\Param.cs" />
+    <Compile Include="marshall\MarshallOctet.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Transport\HttpBody.cs" />

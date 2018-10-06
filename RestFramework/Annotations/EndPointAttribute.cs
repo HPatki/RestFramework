@@ -5,16 +5,16 @@ using System.Threading.Tasks;
 
 using RestFramework.Interface;
 using MethodType = RestFramework.Helpers.Method;
+using RestFramework.Helpers;
 
 namespace RestFramework.Annotations
 {
     [AttributeUsage(AttributeTargets.Method)]
-    sealed public class EndPointAttribute : Attribute, Param
+    sealed public class EndPointAttribute : BaseAttribute
     {
-        String      m_Route;
-        MethodType  m_MethodType;
-        String      m_Produces;
-        String      m_Consumes;
+        MethodType      m_MethodType;
+        MediaType       m_Produces;
+        MediaType       m_Consumes;
 
         /// <summary>
         /// 
@@ -22,9 +22,10 @@ namespace RestFramework.Annotations
         /// <param name="route">Route</param>
         /// <param name="Method">Method</param>
         /// <param name="produces">Produces</param>
-        public EndPointAttribute(String route, String method = "GET", String consumes="application/octet", String produces = "application/octet")
+        public EndPointAttribute(String route, String method = "GET", 
+                                 MediaType consumes=MediaType.APPLICATION_OCTET_STREAM, 
+                                 MediaType produces = MediaType.APPLICATION_OCTET_STREAM) : base (route)
         {
-            m_Route = route;
             switch(method)
             {
                 case "GET":
@@ -36,17 +37,12 @@ namespace RestFramework.Annotations
             m_Consumes = consumes;
         }
 
-        internal String Route
-        {
-            get { return m_Route; }
-        }
-
         internal MethodType Method
         {
             get { return m_MethodType; }
         }
 
-        internal String Produces
+        internal MediaType Produces
         {
             get { return m_Produces; }
         }

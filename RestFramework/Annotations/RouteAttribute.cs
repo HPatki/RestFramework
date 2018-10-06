@@ -9,18 +9,12 @@ using RestFramework.Interface;
 namespace RestFramework.Annotations
 {
     [AttributeUsage(AttributeTargets.Class)]
-    sealed public class RouteAttribute : Attribute, Param
+    sealed public class RouteAttribute : BaseAttribute
     {
-        String mRoute;
 
-        public String Route 
+        public RouteAttribute(String route) : base (route)
         {
-            get { return mRoute;}
-        }
-
-        public RouteAttribute(String route)
-        {
-            mRoute = route;
+            
         }
     }
 }

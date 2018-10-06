@@ -54,5 +54,10 @@ namespace RestFramework.Transport
         {
             return m_Header.getHTTPVersion();
         }
+
+        public String GetHeaderValue(String header)
+        {
+            return m_Header.GetHeaderValue(header);
+        }
     }
 }

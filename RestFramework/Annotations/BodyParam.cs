@@ -9,13 +9,11 @@ using RestFramework.Interface;
 namespace RestFramework.Annotations
 {
     [AttributeUsage (AttributeTargets.Parameter) ]
-    sealed public class BodyParam : Attribute, Param
+    sealed public class BodyParam : BaseAttribute
     {
-        String mMethodArgs;
-
-        public BodyParam(String Arg)
+        public BodyParam(String name) : base (name)
         {
-            mMethodArgs = Arg;
+            
         }
     }
 }

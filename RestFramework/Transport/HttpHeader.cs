@@ -18,7 +18,6 @@ namespace RestFramework.Transport
         
         private String m_HttpVersion;
          
-
         public HttpHeader ConcatenateRawContent(String content)
         {
             m_RawContents.Append(content);
@@ -96,6 +95,13 @@ namespace RestFramework.Transport
         public String getHTTPVersion()
         {
             return m_HttpVersion;
+        }
+
+        public String GetHeaderValue(String header)
+        {
+            String val;
+            m_Headers.TryGetValue(header, out val);
+            return val;
         }
 
     }

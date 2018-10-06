@@ -7,20 +7,22 @@ using System.Text.RegularExpressions;
 using System.Reflection;
 using RestFramework.Annotations;
 using RestFramework.Helpers;
+using RestFramework.Broker;
 
-namespace RestFramework.Broker
+namespace RestFramework.Factories
 {
     sealed class ControllerFactory
     {
-        private Dictionary<String, ComponentMethodMapper> mMapOfGetControllers;
-        private Dictionary<String, ComponentMethodMapper> mMapOfPostControllers;
-        private Dictionary<String, ComponentMethodMapper> mMapOfPutControllers;
-
+        private Dictionary<String, ComponentMethodMapper> m_MapOfGetControllers;
+        private Dictionary<String, ComponentMethodMapper> m_MapOfPostControllers;
+        private Dictionary<String, ComponentMethodMapper> m_MapOfPutControllers;
+        private Dictionary<String, ComponentMethodMapper> m_EmptyController;
         public ControllerFactory()
         {
-            mMapOfGetControllers = new Dictionary<string, ComponentMethodMapper>();
-            mMapOfPostControllers = new Dictionary<string, ComponentMethodMapper>();
-            mMapOfPutControllers = new Dictionary<string, ComponentMethodMapper>();
+            m_MapOfGetControllers = new Dictionary<string, ComponentMethodMapper>();
+            m_MapOfPostControllers = new Dictionary<string, ComponentMethodMapper>();
+            m_MapOfPutControllers = new Dictionary<string, ComponentMethodMapper>();
+            m_EmptyController = new Dictionary<string, ComponentMethodMapper>();
         }
 
         public void ConstructSingleTons()
@@ -44,23 +46,31 @@ namespace RestFramework.Broker
         public object[] getMethodMapper(Method mthd, String URI)
         {
             object[] ret = new Object[2];
+            Dictionary<String, ComponentMethodMapper> container = null;
 
             switch (mthd)
             {
                 case Method.GET:
-                    foreach (String key in mMapOfGetControllers.Keys)
-                    {
-                        Regex parser = new Regex(key);
-                        ret[1] = parser.IsMatch(URI) == true ? mMapOfGetControllers[key] : null;  
-                        if (null != ret[1])
-                            break;
-                    }
+                    container = m_MapOfGetControllers;
                     break;
                 case Method.POST:
-                    ret[1] = mMapOfPostControllers.ContainsKey(URI) == true ? mMapOfPostControllers[URI] : null;
+                    container = m_MapOfPostControllers;
                     break;
                 case Method.PUT:
-                    ret[1] = mMapOfPutControllers.ContainsKey(URI) == true ? mMapOfPutControllers[URI] : null;
+                    container = m_MapOfPutControllers;
+                    break;
+                default:
+                    container = m_EmptyController;
+                    break;
+                    
+            }
+
+            foreach (String key in container.Keys)
+            {
+                Regex parser = new Regex(key);
+
+                ret[1] = parser.IsMatch(URI) == true ? container[key] : null;
+                if (null != ret[1])
                     break;
             }
 
@@ -82,9 +92,9 @@ namespace RestFramework.Broker
                 {
                     var obj = Activator.CreateInstance(T);
 
-                    MemberInfo[] mInfo = T.GetMembers();
+                    MethodInfo[] mInfo = T.GetMethods();
 
-                    foreach (MemberInfo info in mInfo)
+                    foreach (MethodInfo info in mInfo)
                     {
                         Attribute AttrbOnMethod = info.GetCustomAttribute(typeof(EndPointAttribute), false);
                        
@@ -95,13 +105,13 @@ namespace RestFramework.Broker
                             switch (CntrlMthdAttr.Method)
                             {
                                 case Method.GET:
-                                    refHandle = mMapOfGetControllers;
+                                    refHandle = m_MapOfGetControllers;
                                     break;
                                 case Method.POST:
-                                    refHandle = mMapOfPostControllers;
+                                    refHandle = m_MapOfPostControllers;
                                     break;
                                 case Method.PUT:
-                                    refHandle = mMapOfPutControllers;
+                                    refHandle = m_MapOfPutControllers;
                                     break;
                                 default:
                                     throw new Exception();
@@ -111,7 +121,7 @@ namespace RestFramework.Broker
                             //split the CntrlMthdAttr route to take only the context path 
                             //void of path variables
                             Regex parser = new Regex("[a-z A-z 0-9]*{[a-z A-z 0-9]*}");
-                            String[] str = parser.Split(CntrlMthdAttr.Route);
+                            String[] str = parser.Split(CntrlMthdAttr.getName());
                             StringBuilder bldr = new StringBuilder();
                             for (int i = 0; i < str.Length; ++i)
                             {
@@ -120,12 +130,13 @@ namespace RestFramework.Broker
                                     bldr.Append(".*");
                             }
 
-                            String mapperKey = ((RouteAttribute)AttribOnClass[0]).Route +
+                            String mapperKey = ((RouteAttribute)AttribOnClass[0]).getName() +
                                                 bldr.ToString();
 
                             var hdlr = new ComponentMethodMapper();
                             hdlr.AddMethodDetails(obj, info as MethodInfo, 
-                                ((RouteAttribute)AttribOnClass[0]).Route + CntrlMthdAttr.Route );
+                                ((RouteAttribute)AttribOnClass[0]).getName() + CntrlMthdAttr.getName(),
+                                CntrlMthdAttr);
 
                             refHandle.Add(mapperKey, hdlr);
                         }

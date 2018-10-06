@@ -7,7 +7,7 @@ using System.Reflection;
 using RestFramework.Helpers;
 using RestFramework.Annotations;
 
-using RestFramework.Broker;
+using RestFramework.Factories;
 
 namespace RestFramework.Container
 {

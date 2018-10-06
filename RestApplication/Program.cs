@@ -12,6 +12,10 @@ namespace RestApplication
     {
         static void Main(string[] args)
         {
+            object vall = new Program();
+            Type T = new String('&',1).GetType();
+            var vallC = Convert.ChangeType(vall, vall.GetType());
+
             Regex parser = new Regex("[a-z A-z 0-9]*{[a-z A-z 0-9]*}");
             String[] str = parser.Split("/admin/login/{name}/dummy/{surname}?middle=suhas");
             StringBuilder bldr = new StringBuilder();

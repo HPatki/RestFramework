@@ -9,7 +9,7 @@ namespace RestFramework.Transport
     internal class HttpEntityHeader
     {
         private String m_ContentEncoding;
-        private UInt64 m_ContentLength;
+        private UInt64 m_ContentLength = 0;
         private String m_ContentType;
 
         internal String ContentEncoding

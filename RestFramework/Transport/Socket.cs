@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.NetworkInformation;
 using System.Threading;
 using SystemSocket = System.Net.Sockets.Socket;
 
@@ -29,9 +30,6 @@ namespace RestFramework.Transport
 
         public void StartListening(int incomingBuffer=1000)
         {
-            // Data buffer for incoming data.  
-            byte[] bytes = new Byte[1024];
-
             // Create a TCP/IP socket.  
             m_listeningSocket = new SystemSocket(m_ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -48,14 +46,21 @@ namespace RestFramework.Transport
                 {
                     // Program is suspended while waiting for an incoming connection.  
                     SystemSocket handler = m_listeningSocket.Accept();
-
                     ThreadPool.QueueUserWorkItem(new HttpStreamReader().ListenSocketHandler, handler);
+                    
+                    EndPoint endpt = handler.LocalEndPoint;
+                    long result = IPGlobalProperties.GetIPGlobalProperties()
+                                .GetTcpIPv4Statistics()
+                                .CurrentConnections;
+                    System.Console.WriteLine(result);
+                    
                 }
 
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
+                Environment.Exit(-1);
             }
 
         }

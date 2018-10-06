@@ -13,18 +13,25 @@ namespace RestFramework.Helpers
     {
         private static char[] m_PathQueryVarSplitter = { '=', '&' };
 
-        internal static object[] Extract(HttpRequest request, List<Param> parameters)
+        internal static object[] Extract(HttpRequest request, List<BaseAttribute> parameters, HttpResponse response)
         {
             String uri = request.getRequestURI();
             List<Object> objects = new List<object>();
+            Object ParamToAdd = null;
 
-            foreach (Param p in parameters)
+            foreach (BaseAttribute p in parameters)
             {
+                if (p is HttpResponse)
+                {
+                    objects.Add(response);
+                }
+
                 if (p is PathVariable)
                 {
                     Int32 pos = ((PathVariable)p).getPosInURL();
                     String[] spit = uri.Substring(pos).Split('/');
-                    objects.Add(spit[0]);
+                    ParamToAdd = spit[0];
+                    
                 }
 
                 if (p is PathQueryVariable)
@@ -35,11 +42,18 @@ namespace RestFramework.Helpers
                     if (splits.Count == 1)
                     {
                         String[] split = splits[0].Value.Split(ExtractMethodParams.m_PathQueryVarSplitter);
-                        objects.Add(split[1]);
+                        ParamToAdd = split[1];
                     }
 
                 }
 
+                if (p is HeaderParam)
+                {
+                    String headerval = request.GetHeaderValue(p.getName());
+                    ParamToAdd = headerval;
+                }
+
+                objects.Add(Convert.ChangeType(ParamToAdd, p.getType()));
             }
 
             return objects.ToArray();
