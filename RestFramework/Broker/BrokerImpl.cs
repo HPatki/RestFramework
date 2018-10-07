@@ -12,7 +12,7 @@ using RestFramework.Interface;
 using RestFramework.Transport;
 using RestFramework.Helpers;
 using RestFramework.Annotations;
-using RestFramework.MarshallDemar;
+using RestFramework.Serde;
 
 namespace RestFramework.Broker
 {

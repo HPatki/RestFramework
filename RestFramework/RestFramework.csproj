@@ -64,13 +64,13 @@
     <Compile Include="Container\HostContainer.cs" />
     <Compile Include="Exceptions\URLNotFound.cs" />
     <Compile Include="Factories\DelegateTypeFactory.cs" />
-    <Compile Include="MarshallDemar\ExtractMethodParams.cs" />
+    <Compile Include="Serde\ExtractMethodParams.cs" />
     <Compile Include="Helpers\MediaType.cs" />
     <Compile Include="Helpers\MessageInterceptor.cs" />
     <Compile Include="Helpers\Method.cs" />
     <Compile Include="Helpers\StatusCodeDesc.cs" />
     <Compile Include="Interface\IBroker.cs" />
-    <Compile Include="MarshallDemar\MarshallOctet.cs" />
+    <Compile Include="Serde\MarshallOctet.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Transport\HttpBody.cs" />
