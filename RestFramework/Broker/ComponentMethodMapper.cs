@@ -19,6 +19,16 @@ namespace RestFramework.Broker
         private MediaType   m_Consumes;
         private Object      m_obj;
 
+        internal MediaType Produces
+        {
+            get { return m_Produces; }
+        }
+
+        internal MediaType Consumes
+        {
+            get { return m_Consumes; }
+        }
+
         internal MethodInfo GetMethodInfo()
         {
             return m_methodInfo;
@@ -56,9 +66,8 @@ namespace RestFramework.Broker
                     PathQueryVariable variable = PQueryParams[0] as PathQueryVariable;
                     variable.setPosInURL(Param.Position);
                     variable.setType(Param.ParameterType);
-                    var param = PQueryParams[0] as BaseAttribute;
 
-                    m_SequenceOfParams.Add(param);
+                    m_SequenceOfParams.Add(variable);
 
                     continue;
                 }
@@ -79,10 +88,18 @@ namespace RestFramework.Broker
                     String[] splits = parser.Split(URI);
                     variable.setPosInURL(splits[0].Length);
                     variable.setType(Param.ParameterType);
-                    var param = RequestParams[0] as BaseAttribute;
                     
-                    m_SequenceOfParams.Add(param);
+                    m_SequenceOfParams.Add(variable);
 
+                    continue;
+                }
+
+                object[] headerParams = Param.GetCustomAttributes(typeof(HeaderParam), false);
+                if (0 != headerParams.Length)
+                {
+                    var param = headerParams[0] as HeaderParam;
+                    param.setType(Param.ParameterType);
+                    m_SequenceOfParams.Add(param);
                     continue;
                 }
 

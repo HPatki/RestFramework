@@ -18,7 +18,7 @@ namespace RestFramework.Transport
         public HttpResponse()
             : base("HttpResponse")
         {
-
+            setType(typeof(HttpResponse));
         }
 
         public String ContentEncoding

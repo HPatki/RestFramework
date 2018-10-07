@@ -15,6 +15,7 @@ namespace RestFramework.Transport
         private String m_RawContentsStr = null;
         private Method m_method;
         private String m_RequestURI;
+        private char[] m_HeaderSep = { ':' };
         
         private String m_HttpVersion;
          
@@ -46,9 +47,9 @@ namespace RestFramework.Transport
             var headers = m_parser.Split(GetRawContents());
             for (int i = 0; i < headers.Length; ++i)
             {
-                String[] parts = headers[i].Split(':');
+                String[] parts = headers[i].Split(m_HeaderSep, 2);
                 if (parts.Length > 1)
-                {
+                {   
                     m_Headers.Add(parts[0].ToUpper(), parts[1]);
                 }
                 else
@@ -100,7 +101,7 @@ namespace RestFramework.Transport
         public String GetHeaderValue(String header)
         {
             String val;
-            m_Headers.TryGetValue(header, out val);
+            m_Headers.TryGetValue(header.ToUpper(), out val);
             return val;
         }
 

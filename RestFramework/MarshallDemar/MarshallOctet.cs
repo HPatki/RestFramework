@@ -5,7 +5,7 @@ using System.Text;
 using RestFramework.Transport;
 using RestFramework.Helpers;
 
-namespace RestFramework.marshall
+namespace RestFramework.MarshallDemar
 {
     class MarshallOctet
     {

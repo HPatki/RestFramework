@@ -19,6 +19,7 @@ namespace RestApplication.controllers
             [PathQueryVariable("middlename")]String middleName, 
             [PathVariable("surname")]String surname,
             [PathQueryVariable("salutation")]String salutation,
+            [HeaderParam("user")]UserInfo info,
             HttpResponse response)
         {
             response.StatusCode = 200;

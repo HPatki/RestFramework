@@ -2,18 +2,24 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Runtime.Serialization;
+using JSON = System.Runtime.Serialization.Json.DataContractJsonSerializer;
+using System.IO;
 
 using RestFramework.Transport;
 using RestFramework.Interface;
 using RestFramework.Annotations;
+using RestFramework.Helpers;
 
-namespace RestFramework.Helpers
+namespace RestFramework.MarshallDemar
 {
     internal class ExtractMethodParams
     {
         private static char[] m_PathQueryVarSplitter = { '=', '&' };
 
-        internal static object[] Extract(HttpRequest request, List<BaseAttribute> parameters, HttpResponse response)
+        internal static object[] Extract(HttpRequest request, HttpResponse response,
+            List<BaseAttribute> parameters, MediaType consumes
+            )
         {
             String uri = request.getRequestURI();
             List<Object> objects = new List<object>();
@@ -23,7 +29,7 @@ namespace RestFramework.Helpers
             {
                 if (p is HttpResponse)
                 {
-                    objects.Add(response);
+                    ParamToAdd = response;
                 }
 
                 if (p is PathVariable)
@@ -50,7 +56,22 @@ namespace RestFramework.Helpers
                 if (p is HeaderParam)
                 {
                     String headerval = request.GetHeaderValue(p.getName());
-                    ParamToAdd = headerval;
+                    
+                    //it could be JSON
+                    
+                    JSON Deser = new JSON (p.getType());
+                    MemoryStream stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(headerval));
+                    ParamToAdd = Deser.ReadObject(stream);
+                }
+
+                if (p is HeaderParam)
+                {
+                    String headerval = request.GetHeaderValue(p.getName());
+                    //it could be JSON
+
+                    JSON Deser = new JSON(p.getType());
+                    MemoryStream stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(headerval));
+                    ParamToAdd = Deser.ReadObject(stream);
                 }
 
                 objects.Add(Convert.ChangeType(ParamToAdd, p.getType()));

@@ -12,6 +12,7 @@ using RestFramework.Interface;
 using RestFramework.Transport;
 using RestFramework.Helpers;
 using RestFramework.Annotations;
+using RestFramework.MarshallDemar;
 
 namespace RestFramework.Broker
 {
@@ -38,7 +39,8 @@ namespace RestFramework.Broker
 
             if (null != mpr)
             {
-                Object[] parameters = ExtractMethodParams.Extract(m_Request, mpr.getParamList(), response);
+                Object[] parameters = ExtractMethodParams.Extract(m_Request, response, 
+                    mpr.getParamList(), mpr.Consumes);
 
                 /* Invoke using MethodInfo is way faster than a delegate
                  */

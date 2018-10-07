@@ -3,7 +3,7 @@ using System.Reflection.Emit;
 using System.Reflection;
 using System.Linq;
 
-namespace RestFramework.Helpers
+namespace RestFramework.Factories
 {
     sealed internal class DelegateTypeFactory
     {
