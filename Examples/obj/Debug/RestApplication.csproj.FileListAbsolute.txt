@@ -1,0 +1,8 @@
+F:\P\projects\RestFramework\RestFramework\RestApplication\obj\Debug\RestApplication.csprojResolveAssemblyReference.cache
+F:\P\projects\RestFramework\RestFramework\RestApplication\bin\Debug\RestApplication.exe.config
+F:\P\projects\RestFramework\RestFramework\RestApplication\bin\Debug\RestApplication.exe
+F:\P\projects\RestFramework\RestFramework\RestApplication\bin\Debug\RestApplication.pdb
+F:\P\projects\RestFramework\RestFramework\RestApplication\bin\Debug\RestFramework.dll
+F:\P\projects\RestFramework\RestFramework\RestApplication\bin\Debug\RestFramework.pdb
+F:\P\projects\RestFramework\RestFramework\RestApplication\obj\Debug\RestApplication.exe
+F:\P\projects\RestFramework\RestFramework\RestApplication\obj\Debug\RestApplication.pdb
