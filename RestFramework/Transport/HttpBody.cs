@@ -10,20 +10,20 @@ namespace RestFramework.Transport
     {
         private MemoryStream bc = new MemoryStream();
 
-        public void addBodyContent(ref byte[] content)
+        internal void addBodyContent(ref byte[] content)
         {
             bc.Seek(0, SeekOrigin.End);
             bc.Write(content, 0, content.Length);
         }
 
-        public override String ToString()
+        internal Byte[] GetBody
         {
-            String ret = null;
-            StreamWriter wrtr = new StreamWriter(new FileStream("output.txt", FileMode.Create), Encoding.UTF8);
+            get { return bc.GetBuffer(); }
+        }
 
-            wrtr.Write(Encoding.UTF8.GetString(bc.ToArray()));
-            wrtr.Close();
-            return ret;
+        internal Int64 GetBodyLength
+        {
+            get { return bc.Length; }
         }
     }
 }

@@ -14,12 +14,13 @@ namespace RestApplication.controllers
     {
         private static Random m_rndm = new Random();
 
-        [EndPointAttribute ("/getName/{name}/dummy/{surname}")]
+        [EndPointAttribute (route:"/getName/{name}/dummy/{surname}" , method:"POST")]
         public void getName ([PathVariable("name")]String name,
             [PathQueryVariable("middlename")]String middleName, 
             [PathVariable("surname")]String surname,
             [PathQueryVariable("salutation")]String salutation,
             [HeaderParam("user")]UserInfo info,
+            [BodyParam("File")]UserInfo info1,
             HttpResponse response)
         {
             response.StatusCode = 200;

@@ -52,60 +52,61 @@ namespace RestFramework.Broker
 
             foreach (ParameterInfo Param in paramInfo)
             {
-                object[] bodyParams = Param.GetCustomAttributes(typeof(BodyQueryParam), false);
-                if (0 != bodyParams.Length)
+                object[] baseAttr = Param.GetCustomAttributes(typeof(BaseAttribute), true);
+                BaseAttribute attrib = null;
+                
+                if (0 != baseAttr.Length)
                 {
-                    var param = bodyParams[0] as BaseAttribute;
-                    m_SequenceOfParams.Add(param);
+                    attrib = baseAttr[0] as BaseAttribute;
+                    attrib.setType(Param.ParameterType);
+                }
+                else
+                {
+                    if (Param.ParameterType == typeof(HttpResponse))
+                    {
+                        m_SequenceOfParams.Add(new HttpResponse());
+                    }
+
                     continue;
                 }
 
-                object[] PQueryParams = Param.GetCustomAttributes(typeof(PathQueryVariable), false);
-                if (0 != PQueryParams.Length)
+
+                if (attrib.GetType() == typeof(BodyQueryParam))
                 {
-                    PathQueryVariable variable = PQueryParams[0] as PathQueryVariable;
+                    m_SequenceOfParams.Add(attrib);
+                    continue;
+                }
+
+                if (attrib.GetType() == typeof(PathQueryVariable))
+                {
+                    var variable = attrib as PathQueryVariable;
                     variable.setPosInURL(Param.Position);
-                    variable.setType(Param.ParameterType);
-
                     m_SequenceOfParams.Add(variable);
-
                     continue;
                 }
 
-                object[] BQueryParams = Param.GetCustomAttributes(typeof(BodyParam), false);
-                if (0 != BQueryParams.Length)
+                if (attrib.GetType() == typeof(BodyParam))
                 {
-                    var param = BQueryParams[0] as BaseAttribute;
-                    m_SequenceOfParams.Add(param);
+                    m_SequenceOfParams.Add(attrib);
                     continue;
                 }
 
-                object[] RequestParams = Param.GetCustomAttributes(typeof(PathVariable), false);
-                if (0 != RequestParams.Length)
+                if (attrib.GetType() == typeof(PathVariable))
                 {
-                    PathVariable variable = RequestParams[0] as PathVariable;
+                    var variable = attrib as PathVariable;
                     Regex parser = new Regex("{"+variable.getName()+"}");
                     String[] splits = parser.Split(URI);
                     variable.setPosInURL(splits[0].Length);
-                    variable.setType(Param.ParameterType);
                     
                     m_SequenceOfParams.Add(variable);
 
                     continue;
                 }
 
-                object[] headerParams = Param.GetCustomAttributes(typeof(HeaderParam), false);
-                if (0 != headerParams.Length)
+                if (attrib.GetType() == typeof(HeaderParam))
                 {
-                    var param = headerParams[0] as HeaderParam;
-                    param.setType(Param.ParameterType);
+                    var param = attrib as HeaderParam;
                     m_SequenceOfParams.Add(param);
-                    continue;
-                }
-
-                if (Param.ParameterType == typeof(HttpResponse))
-                {
-                    m_SequenceOfParams.Add(new HttpResponse());
                     continue;
                 }
 

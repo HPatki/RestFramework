@@ -3,6 +3,9 @@ using System.Text.RegularExpressions;
 using System.Text;
 using System.IO;
 using SystemSocket = System.Net.Sockets.Socket;
+using System.Collections.ObjectModel;
+
+
 using RestFramework.Interface;
 using RestFramework.Broker;
 
@@ -49,10 +52,13 @@ namespace RestFramework.Transport
                             //need to be considered to know how much of body has been
                             //read. This was not happening
                             StringBuilder Bldr = new StringBuilder(1024);
-
+                            int skip = 1;
                             foreach (String oneStr in splitted)
+                            {
+                                if (0 < skip--)
+                                    continue;
                                 Bldr.Append(oneStr);
-
+                            }
                             var splittedByte = Encoding.UTF8.GetBytes(Bldr.ToString());
 
                             if (splittedByte.Length >= BodyLength)

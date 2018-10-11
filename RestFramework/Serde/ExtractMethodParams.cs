@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Runtime.Serialization;
 using JSON = System.Runtime.Serialization.Json.DataContractJsonSerializer;
 using System.IO;
+using System.Reflection;
 
 using RestFramework.Transport;
 using RestFramework.Interface;
@@ -58,20 +59,50 @@ namespace RestFramework.Serde
                     String headerval = request.GetHeaderValue(p.getName());
                     
                     //it could be JSON
-                    
-                    JSON Deser = new JSON (p.getType());
-                    MemoryStream stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(headerval));
-                    ParamToAdd = Deser.ReadObject(stream);
+                    if (MediaType.APPLICATION_JSON == consumes)
+                    {
+                        JSON Deser = new JSON(p.getType());
+                        MemoryStream stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(headerval));
+                        ParamToAdd = Deser.ReadObject(stream);
+                    }
+                    else
+                    {
+                        ParamToAdd = headerval;
+                    }
                 }
 
-                if (p is HeaderParam)
+                if (p is BodyParam)
                 {
-                    String headerval = request.GetHeaderValue(p.getName());
+                    Byte[] body = request.GetBody();
+                    Int32 len = (Int32)request.GetBodyLength();
+                    
                     //it could be JSON
+                    if (MediaType.APPLICATION_JSON == consumes)
+                    {
+                        JSON Deser = new JSON(p.getType());
+                        MemoryStream stream = new MemoryStream(body,0,len);
+                        ParamToAdd = Deser.ReadObject(stream);
+                    }
+                    else
+                    {
+                        Type T = p.getType();
+                        ConstructorInfo[] infor = T.GetConstructors();
+                        foreach (ConstructorInfo info in infor)
+                        {
+                            var ParamInfo = info.GetParameters();
+                            if (1 == ParamInfo.Length && ParamInfo[0].ParameterType == typeof(Byte[]))
+                            {
+                                Object[] arguments = new Object[1];
+                                arguments[0] = body;
+                                ParamToAdd = info.Invoke(arguments);
+                            }
+                        }
+                    }
+                }
 
-                    JSON Deser = new JSON(p.getType());
-                    MemoryStream stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(headerval));
-                    ParamToAdd = Deser.ReadObject(stream);
+                if (p is BodyQueryParam)
+                {
+                    //TODO
                 }
 
                 objects.Add(Convert.ChangeType(ParamToAdd, p.getType()));

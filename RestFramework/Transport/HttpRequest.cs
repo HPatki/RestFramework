@@ -35,9 +35,14 @@ namespace RestFramework.Transport
             m_Body.addBodyContent(ref content);
         }
 
-        public String GetBody()
+        public Byte[] GetBody()
         {
-            return m_Body.ToString();
+            return m_Body.GetBody;
+        }
+
+        public Int64 GetBodyLength()
+        {
+            return m_Body.GetBodyLength;
         }
 
         public Method getMethod()

@@ -10,12 +10,17 @@ using RestFramework;
 namespace RestApplication
 {
     [DataContract]
-    class UserInfo
+    class UserInfo 
     {
         [DataMember]
         String name;
         [DataMember]
         String password;
+
+        public UserInfo(Byte[] bytes)
+        {
+
+        }
     }
 
     class Program
