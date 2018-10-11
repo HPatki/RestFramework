@@ -8,6 +8,7 @@ using System.Reflection;
 using RestFramework.Annotations;
 using RestFramework.Helpers;
 using RestFramework.Broker;
+using RestFramework.Exceptions;
 
 namespace RestFramework.Factories
 {
@@ -138,7 +139,14 @@ namespace RestFramework.Factories
                                 ((RouteAttribute)AttribOnClass[0]).getName() + CntrlMthdAttr.getName(),
                                 CntrlMthdAttr);
 
-                            refHandle.Add(mapperKey, hdlr);
+                            try
+                            {
+                                refHandle.Add(mapperKey, hdlr);
+                            }
+                            catch (ArgumentException err)
+                            {
+                                throw new SameEndPointURL(((RouteAttribute)AttribOnClass[0]).getName() + CntrlMthdAttr.getName()); 
+                            }
                         }
                     }
                 }

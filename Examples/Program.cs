@@ -23,6 +23,15 @@ namespace RestApplication
         }
     }
 
+    [DataContract]
+    class Greeting
+    {
+        [DataMember]
+        public String name;
+        [DataMember]
+        public String surname;
+    }
+
     class Program
     {
         static void Main(string[] args)

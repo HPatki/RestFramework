@@ -19,6 +19,8 @@ namespace RestFramework.Transport
             : base("HttpResponse")
         {
             setType(typeof(HttpResponse));
+            m_EntityHeader = new HttpEntityHeader();
+            m_ResponseHeader = new HttpResponseHeader();
         }
 
         public String ContentEncoding
@@ -56,38 +58,30 @@ namespace RestFramework.Transport
             m_ResponseHeader.AddHeader(name, val);
         }
 
+        public Byte[] Body
+        {
+            get { return m_Body; }
+            set { m_Body = value; }
+        }
+
         public byte[] Bytes()
         {   
-            /*BinaryReader rdr = new BinaryReader(File.Open(@"f:\D\Doodles\Amazon-TimeLine.png", FileMode.Open));
-            List<byte> lByte = new List<byte>();
-            int read = 10, readSoFar=0;
-            byte[] arr;
-            do
-            {
-                arr = rdr.ReadBytes(read);
-                readSoFar += arr.Length;
-                foreach (byte b in arr)
-                    lByte.Add(b);
-                
-            } while (arr.Length >= read);
-
-            var lByteArr = lByte.ToArray();
-            rdr.Close();*/
             StringBuilder strBldr = new StringBuilder();
-            strBldr.Append("HTTP/1.1 " + StatusCode + " Bad Gateway\r\n");
-            //strBldr.Append("content-type: image/png\r\n");
-            //strBldr.Append("content-type: text/plain\r\n");
-            byte[] payload = System.Text.Encoding.UTF8.GetBytes("熊本大学　イタリア　宝島");
-            strBldr.Append("content-length:" + payload.Length + "\r\n");
-            strBldr.Append("\r\n");
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(strBldr.ToString());
+            strBldr.Append(m_StatusDesc+"\r\n");
+            strBldr.Append("content-type: " + m_EntityHeader.ContentType + "\r\n");
+            strBldr.Append("content-Length: " + m_EntityHeader.ContentLength + "\r\n");
+            foreach (KeyValuePair<String, Object> kvPair in m_ResponseHeader)
+            {
+                strBldr.Append(kvPair.Key + " :" + kvPair.Value + "\r\n"); 
+            }
 
-            //byte[] arry = new byte[msg.Length + lByteArr.Length];
-            byte[] arry = new byte[msg.Length + payload.Length];
-            msg.CopyTo(arry, 0);
-            //lByteArr.CopyTo(arry, msg.Length);
-            //byte[] cc = System.Text.Encoding.UTF8.GetBytes("熊本大学　イタリア　宝島");
-            payload.CopyTo(arry, msg.Length);
+            strBldr.Append("\r\n");
+
+            byte[] msgheader = System.Text.Encoding.ASCII.GetBytes(strBldr.ToString());
+
+            byte[] arry = new byte[msgheader.Length + m_Body.Length];
+            msgheader.CopyTo(arry, 0);
+            m_Body.CopyTo(arry, msgheader.Length);
             
             return arry;
         }

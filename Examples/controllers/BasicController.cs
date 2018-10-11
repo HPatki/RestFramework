@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using RestFramework.Annotations;
 using RestFramework.Transport;
+using RestFramework.Helpers;
 
 namespace RestApplication.controllers
 {
@@ -14,18 +15,33 @@ namespace RestApplication.controllers
     {
         private static Random m_rndm = new Random();
 
-        [EndPointAttribute (route:"/getName/{name}/dummy/{surname}" , method:"POST")]
-        public void getName ([PathVariable("name")]String name,
-            [PathQueryVariable("middlename")]String middleName, 
-            [PathVariable("surname")]String surname,
-            [PathQueryVariable("salutation")]String salutation,
-            [HeaderParam("user")]UserInfo info,
-            [BodyParam("File")]UserInfo info1,
-            HttpResponse response)
+        //PathVariable usage
+        [EndPointAttribute (route:"/greet/{name}/dummy/{surname}",produces:MediaType.APPLICATION_JSON)]
+        public String greetings ([PathVariable("name")]String name,
+            [PathVariable("surname")]String surname)
         {
-            response.StatusCode = 200;
-            
-            //return "Hello There " + name + " " + middleName + " " + surname; 
+            return "How are you doing today " + name + " " + surname + "?"; 
+        }
+
+        //HeaderVariable (Plain) usage
+        [EndPointAttribute(route: "/greet/dummy")]
+        public String greetings1([HeaderParam("name")]String name,[HeaderParam("surname")]String surname)
+        {
+            return "How are you doing today " + name + " " + surname + "?";
+        }
+
+        //HeaderVariable (JSON) usage
+        [EndPointAttribute(route: "/greet", consumes: MediaType.APPLICATION_JSON)]
+        public String greetings2([HeaderParam("name")]Greeting greetings)
+        {
+            return "How are you doing today " + greetings.name + " " + greetings.surname + "?";
+        }
+
+        //BodyParam (JSON) usage
+        [EndPointAttribute(route: "/greet/bodyparam", consumes: MediaType.APPLICATION_JSON, method:"POST")]
+        public String greetings3([BodyParam("name")]Greeting greetings)
+        {
+            return "How are you doing today " + greetings.name + " " + greetings.surname + "?";
         }
     }
 }

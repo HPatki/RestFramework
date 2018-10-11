@@ -13,10 +13,10 @@ namespace RestFramework.Helpers
         internal static void init()
         {
             m_CodeToDesc.Add(200, "HTTP/1.1 200 OK");
-            m_CodeToDesc.Add(200, "HTTP/1.1 400 Bad Request");
-            m_CodeToDesc.Add(200, "HTTP/1.1 401 Unauthorized");
-            m_CodeToDesc.Add(200, "HTTP/1.1 403 Forbidden");
-            m_CodeToDesc.Add(200, "HTTP/1.1 404 Not Found");
+            m_CodeToDesc.Add(400, "HTTP/1.1 400 Bad Request");
+            m_CodeToDesc.Add(401, "HTTP/1.1 401 Unauthorized");
+            m_CodeToDesc.Add(403, "HTTP/1.1 403 Forbidden");
+            m_CodeToDesc.Add(404, "HTTP/1.1 404 Not Found");
             
         }
 

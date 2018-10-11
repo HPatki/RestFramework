@@ -46,5 +46,10 @@ namespace RestFramework.Annotations
         {
             get { return m_Produces; }
         }
+
+        internal MediaType Consumes
+        {
+            get { return m_Consumes; }
+        }
     }
 }

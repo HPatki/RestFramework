@@ -44,6 +44,9 @@ namespace RestFramework.Broker
             m_obj = T;
 
             m_methodInfo = info;
+
+            m_Consumes = endPtAttr.Consumes;
+            m_Produces = endPtAttr.Produces;
             
             //m_delegate = Delegate.CreateDelegate(Program.getDelegateFactory().CreateDelegateType(info),
             //    T, info);

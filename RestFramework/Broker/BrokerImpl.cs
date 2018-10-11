@@ -32,7 +32,6 @@ namespace RestFramework.Broker
             var response = new HttpResponse();
             var mthd = m_Request.getMethod();
             ComponentMethodMapper mpr = null;
-            String message;
             
             Object[] ret = Program.getControllerFactory().getMethodMapper(mthd, m_Request.getRequestURI());
             mpr = ret[1] as ComponentMethodMapper;
@@ -49,8 +48,18 @@ namespace RestFramework.Broker
                 Object retVal = mpr.GetMethodInfo().Invoke(mpr.GetObject(), parameters);
                 
                 //marshall the response 
-                //return values can be Object, any built in Type OR a file.
-                //Process depending on return format specified by the user
+                //check if the response was passed to user code
+                Boolean UsrCodeHandledResponse = false;
+                foreach (Object paramobj in parameters)
+                {
+                    if (paramobj == response)
+                        UsrCodeHandledResponse = true;
+                }
+
+                Byte[] responseStream = MarshallOctet.marshall(response, retVal, 
+                                        UsrCodeHandledResponse, mpr.Produces);
+
+                m_Handler.Send(responseStream);
 
             }
             else
@@ -58,7 +67,7 @@ namespace RestFramework.Broker
                 response.StatusCode = 200;
             }
 
-            System.Console.WriteLine (m_Handler.Send(response.Bytes()));
+            //System.Console.WriteLine (m_Handler.Send(response.Bytes()));
             //m_Handler.LingerState = new LingerOption(true,2);
             //m_Handler.Disconnect(false);
 

@@ -9,7 +9,8 @@ namespace RestFramework.Serde
 {
     class MarshallOctet
     {
-        internal Byte[] marshall(HttpResponse response, Byte[] body)
+        internal static Byte[] marshall(HttpResponse response, Object val, Boolean UsrCodeHandledResponse,
+            MediaType produces)
         {
             if (response.StatusCode == 0)
             {
@@ -17,11 +18,19 @@ namespace RestFramework.Serde
                 response.StatusCode = 200;
             }
 
+            //return values can be Object, any built in Type, a file or nothing.
+            //Process depending on return format specified by the user
+ 
             response.StatusDesc = StatusCodeDesc.GetStatusDesc(response.StatusCode);
-            response.ContentType = "application/octet";
-            response.ContentLength = Convert.ToUInt64(body.Length);
+            response.ContentType = response.ContentType.Equals("") == true ?
+                                    MediaTypeContent.GetContentType(produces) : response.ContentType;
+              
+            String objString = val as System.String ;
+            String json = "{\"name\":" + "\"" + objString + "\"}";
+            response.Body = System.Text.Encoding.UTF8.GetBytes(json);
+            response.ContentLength = (UInt64)response.Body.Length;
 
-            return null;
+            return response.Bytes();
         }
     }
 }

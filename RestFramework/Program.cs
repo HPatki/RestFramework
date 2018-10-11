@@ -37,6 +37,7 @@ namespace RestFramework
             m_delegateFactory = new DelegateTypeFactory();
             m_Controllers = new ControllerFactory();
             m_Controllers.ConstructSingleTons();
+            StatusCodeDesc.init();
         }
 
         internal static DelegateTypeFactory getDelegateFactory ()
