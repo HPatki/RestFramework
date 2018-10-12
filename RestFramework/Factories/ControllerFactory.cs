@@ -68,7 +68,9 @@ namespace RestFramework.Factories
 
             foreach (String key in container.Keys)
             {
-                Regex parser = new Regex(key);
+                //[Fixed bug :: the complete key has to match and no partial match
+                //should happen
+                Regex parser = new Regex("^"+key+"$");
 
                 ret[1] = parser.IsMatch(URI) == true ? container[key] : null;
                 if (null != ret[1])

@@ -15,7 +15,7 @@ namespace RestApplication.controllers
     {
         private static Random m_rndm = new Random();
 
-        //PathVariable usage
+        //PathVariable usage - plain message as JSON
         [EndPointAttribute (route:"/greet/{name}/dummy/{surname}",produces:MediaType.APPLICATION_JSON)]
         public String greetings ([PathVariable("name")]String name,
             [PathVariable("surname")]String surname)
@@ -23,14 +23,14 @@ namespace RestApplication.controllers
             return "How are you doing today " + name + " " + surname + "?"; 
         }
 
-        //HeaderVariable (Plain) usage
-        [EndPointAttribute(route: "/greet/dummy")]
+        //HeaderVariable (Plain) usage - Plain message as text/Plain
+        [EndPointAttribute(route: "/greet/dummy", produces:MediaType.TEXT_PLAIN)]
         public String greetings1([HeaderParam("name")]String name,[HeaderParam("surname")]String surname)
         {
             return "How are you doing today " + name + " " + surname + "?";
         }
 
-        //HeaderVariable (JSON) usage
+        //HeaderVariable (JSON) usage - Object JSON
         [EndPointAttribute(route: "/greet", consumes: MediaType.APPLICATION_JSON)]
         public String greetings2([HeaderParam("name")]Greeting greetings)
         {

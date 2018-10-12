@@ -24,10 +24,12 @@ namespace RestFramework.Serde
             response.StatusDesc = StatusCodeDesc.GetStatusDesc(response.StatusCode);
             response.ContentType = response.ContentType.Equals("") == true ?
                                     MediaTypeContent.GetContentType(produces) : response.ContentType;
-              
+            
+            //package the body correctly
             String objString = val as System.String ;
-            String json = "{\"name\":" + "\"" + objString + "\"}";
-            response.Body = System.Text.Encoding.UTF8.GetBytes(json);
+
+            response.Body = MediaTypeContent.GetByte(val, produces);
+            
             response.ContentLength = (UInt64)response.Body.Length;
 
             return response.Bytes();

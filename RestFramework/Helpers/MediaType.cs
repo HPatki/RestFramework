@@ -42,5 +42,32 @@ namespace RestFramework.Helpers
 
             return ct;
         }
+
+        public static Byte[] GetByte(Object val, MediaType produces)
+        {
+            Byte[] retVal = null;
+
+            switch (produces)
+            {
+                case MediaType.APPLICATION_JSON:
+                    //the input object can be a 'Object' or a more basic type.
+                    //in more basic types it could be a string that is already JSON formed
+                    //or could be a plain string, boolean, char or numeric type
+                    {
+                        String objString = val as System.String;
+                        String json = "{\"name\":" + "\"" + objString + "\"}";
+                        retVal = System.Text.Encoding.UTF8.GetBytes(json);
+                    }
+                    break;
+                case MediaType.TEXT_PLAIN:
+                    {
+                        String objString = val as System.String;
+                        retVal = System.Text.Encoding.UTF8.GetBytes(objString);
+                    }
+                    break;
+            }
+           
+            return retVal;
+        }
     }
 }
