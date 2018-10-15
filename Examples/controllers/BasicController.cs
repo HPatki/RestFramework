@@ -43,5 +43,12 @@ namespace RestApplication.controllers
         {
             return "How are you doing today " + greetings.name + " " + greetings.surname + "?";
         }
+
+        //BodyParam (JSON) usage
+        [EndPointAttribute(route: "/greet/bodyparam/{int}", consumes:MediaType.APPLICATION_JSON, method: "POST")]
+        public double greetings4([PathVariable("int")]Int32 time)
+        {
+            return time;
+        }
     }
 }

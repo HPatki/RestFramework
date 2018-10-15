@@ -11,6 +11,7 @@ using RestFramework.Transport;
 using RestFramework.Interface;
 using RestFramework.Annotations;
 using RestFramework.Helpers;
+using RestFramework.Exceptions;
 
 namespace RestFramework.Serde
 {
@@ -25,9 +26,11 @@ namespace RestFramework.Serde
             String uri = request.getRequestURI();
             List<Object> objects = new List<object>();
             Object ParamToAdd = null;
-
+            Int32 len;
             foreach (BaseAttribute p in parameters)
             {
+                len = 0;
+
                 if (p is HttpResponse)
                 {
                     ParamToAdd = response;
@@ -73,31 +76,8 @@ namespace RestFramework.Serde
 
                 if (p is BodyParam)
                 {
-                    Byte[] body = request.GetBody();
-                    Int32 len = (Int32)request.GetBodyLength();
-                    
-                    //it could be JSON
-                    if (MediaType.APPLICATION_JSON == consumes)
-                    {
-                        JSON Deser = new JSON(p.getType());
-                        MemoryStream stream = new MemoryStream(body,0,len);
-                        ParamToAdd = Deser.ReadObject(stream);
-                    }
-                    else
-                    {
-                        Type T = p.getType();
-                        ConstructorInfo[] infor = T.GetConstructors();
-                        foreach (ConstructorInfo info in infor)
-                        {
-                            var ParamInfo = info.GetParameters();
-                            if (1 == ParamInfo.Length && ParamInfo[0].ParameterType == typeof(Byte[]))
-                            {
-                                Object[] arguments = new Object[1];
-                                arguments[0] = body;
-                                ParamToAdd = info.Invoke(arguments);
-                            }
-                        }
-                    }
+                    ParamToAdd = request.GetBody();
+                    len = (Int32)request.GetBodyLength();
                 }
 
                 if (p is BodyQueryParam)
@@ -105,11 +85,78 @@ namespace RestFramework.Serde
                     //TODO
                 }
 
-                objects.Add(Convert.ChangeType(ParamToAdd, p.getType()));
+                objects.Add(ChangeType(ParamToAdd, p.getType(), consumes, len));
             }
 
             return objects.ToArray();
         }
 
+        private static Object ChangeType (Object ParamToAdd, Type T, MediaType consumes, Int32 len)
+        {
+            Object toReturn = null;
+            Type ParamType = ParamToAdd.GetType(); //string or Byte[]
+
+            //it could be JSON
+            if (MediaType.APPLICATION_JSON == consumes)
+            {
+                JSON Deser = new JSON(T);
+                MemoryStream stream = null;
+
+                if (ParamType == typeof(System.Byte[]))
+                {
+                    stream = new MemoryStream((Byte[])ParamToAdd, 0, len);
+                }
+                else //it will always be string
+                {
+                    stream = new MemoryStream(
+                        System.Text.Encoding.UTF8.GetBytes((String)ParamToAdd), 0, len);
+                }
+
+                try
+                {
+                    toReturn = Deser.ReadObject(stream);
+                }
+                catch (Exception err)
+                {
+                    throw new UnsupportedMediaType(err.Message);
+                }
+            }
+            else 
+            {
+                //based on T, convert
+                if ( (T == typeof (int)) || (T == typeof (long)) || (T == typeof(double))
+                    || (T == typeof(short)) || (T == typeof (char)) || (T == typeof(bool)) ) 
+                {
+                    Double a;
+                    Double.TryParse((String)ParamToAdd, out a);
+                    toReturn = Convert.ChangeType(a, T);
+                }
+                else if (T == typeof(System.String))
+                {
+                    toReturn = Convert.ChangeType(ParamToAdd, T);
+                }
+
+                if (ParamToAdd.GetType().BaseType == typeof(System.ValueType))
+                {
+                    //??
+                }
+                else
+                {
+                    ConstructorInfo[] infor = T.GetConstructors();
+                    foreach (ConstructorInfo info in infor)
+                    {
+                        var ParamInfo = info.GetParameters();
+                        if (1 == ParamInfo.Length && ParamInfo[0].ParameterType == typeof(Byte[]))
+                        {
+                            Object[] arguments = new Object[1];
+                            arguments[0] = ParamToAdd;
+                            toReturn = info.Invoke(arguments);
+                        }
+                    }
+                }
+            }
+
+            return toReturn;
+        }
     }
 }

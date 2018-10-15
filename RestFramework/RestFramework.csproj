@@ -60,6 +60,7 @@
     <Compile Include="Broker\BrokerImpl.cs" />
     <Compile Include="Broker\ComponentMethodMapper.cs" />
     <Compile Include="Exceptions\SameEndPointURL.cs" />
+    <Compile Include="Exceptions\UnsupportedMediaType.cs" />
     <Compile Include="Factories\ControllerFactory.cs" />
     <Compile Include="Broker\MethodDetails.cs" />
     <Compile Include="Container\HostContainer.cs" />

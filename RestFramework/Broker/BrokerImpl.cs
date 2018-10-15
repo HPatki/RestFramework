@@ -13,6 +13,7 @@ using RestFramework.Transport;
 using RestFramework.Helpers;
 using RestFramework.Annotations;
 using RestFramework.Serde;
+using RestFramework.Exceptions;
 
 namespace RestFramework.Broker
 {
@@ -33,33 +34,64 @@ namespace RestFramework.Broker
             var mthd = m_Request.getMethod();
             ComponentMethodMapper mpr = null;
             
-            Object[] ret = Program.getControllerFactory().getMethodMapper(mthd, m_Request.getRequestURI());
+            Object[] ret = Program.getControllerFactory().getMethodMapper(mthd, 
+                                                            m_Request.getRequestURI());
             mpr = ret[1] as ComponentMethodMapper;
-
+            Object retVal = null;
+            
             if (null != mpr)
             {
-                Object[] parameters = ExtractMethodParams.Extract(m_Request, response, 
-                    mpr.getParamList(), mpr.Consumes);
-
-                /* Invoke using MethodInfo is way faster than a delegate
-                 */
-                //Object retVal = mpr.DynamicInvoke(parameters);
-
-                Object retVal = mpr.GetMethodInfo().Invoke(mpr.GetObject(), parameters);
-                
-                //marshall the response 
-                //check if the response was passed to user code
-                Boolean UsrCodeHandledResponse = false;
-                foreach (Object paramobj in parameters)
+                try
                 {
-                    if (paramobj == response)
-                        UsrCodeHandledResponse = true;
+                    Object[] parameters = ExtractMethodParams.Extract(m_Request, response,
+                        mpr.getParamList(), mpr.Consumes);
+
+                    /* Invoke using MethodInfo is way faster than a delegate
+                     */
+                    //Object retVal = mpr.DynamicInvoke(parameters);
+
+                    retVal = mpr.GetMethodInfo().Invoke(mpr.GetObject(), parameters);
+
                 }
+                catch (UnsupportedMediaType err)
+                {
+                    response.StatusCode = 415;
+                    response.ContentType = MediaTypeContent.GetContentType(MediaType.TEXT_PLAIN);
+                    retVal = "Error during deserialising to JSON";
+                }
+                catch (Exception err)
+                {
+                    response.StatusCode = 500;
+                    response.ContentType = MediaTypeContent.GetContentType(MediaType.TEXT_PLAIN);
+                    retVal = "Internal Error " + err.Message;
+                }
+                finally
+                {
+                    try
+                    {
+                        //marshall the response 
+                        //check if the response was passed to user code
+                        Byte[] responseStream = MarshallOctet.marshall(response, retVal, mpr.Produces);
 
-                Byte[] responseStream = MarshallOctet.marshall(response, retVal, 
-                                        UsrCodeHandledResponse, mpr.Produces);
-
-                m_Handler.Send(responseStream);
+                        m_Handler.Send(responseStream);
+                    }
+                    catch (ArgumentNullException err)
+                    {
+                        //TODO
+                    }
+                    catch (SocketException err)
+                    {
+                        //TODO
+                    }
+                    catch (ObjectDisposedException err)
+                    {
+                        //TODO
+                    }
+                    catch (Exception err)
+                    {
+                        //TODO
+                    }
+                }
 
             }
             else

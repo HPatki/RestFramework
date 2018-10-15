@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Runtime.Serialization;
 
 using RestFramework;
+using RestApplication.controllers;
 
 namespace RestApplication
 {
@@ -23,6 +24,7 @@ namespace RestApplication
         }
     }
 
+
     [DataContract]
     class Greeting
     {
@@ -38,7 +40,6 @@ namespace RestApplication
         {
             RestFramework.Program.createFactories();
             RestFramework.Program.createServer();
-
         }
     }
 }

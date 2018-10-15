@@ -48,11 +48,12 @@ namespace RestFramework.Transport
                     SystemSocket handler = m_listeningSocket.Accept();
                     ThreadPool.QueueUserWorkItem(new HttpStreamReader().ListenSocketHandler, handler);
                     
-                    EndPoint endpt = handler.LocalEndPoint;
-                    long result = IPGlobalProperties.GetIPGlobalProperties()
-                                .GetTcpIPv4Statistics()
-                                .CurrentConnections;
-                    System.Console.WriteLine(result);
+                    //log
+                    //EndPoint endpt = handler.LocalEndPoint;
+                    //long result = IPGlobalProperties.GetIPGlobalProperties()
+                    //            .GetTcpIPv4Statistics()
+                    //            .CurrentConnections;
+                    //System.Console.WriteLine(result);
                     
                 }
 

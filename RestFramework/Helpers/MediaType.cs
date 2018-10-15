@@ -45,28 +45,57 @@ namespace RestFramework.Helpers
 
         public static Byte[] GetByte(Object val, MediaType produces)
         {
+            Type objectType = val.GetType().BaseType;
             Byte[] retVal = null;
 
-            switch (produces)
-            {
+             switch (produces)
+             {          
                 case MediaType.APPLICATION_JSON:
-                    //the input object can be a 'Object' or a more basic type.
-                    //in more basic types it could be a string that is already JSON formed
-                    //or could be a plain string, boolean, char or numeric type
-                    {
-                        String objString = val as System.String;
-                        String json = "{\"name\":" + "\"" + objString + "\"}";
-                        retVal = System.Text.Encoding.UTF8.GetBytes(json);
-                    }
-                    break;
-                case MediaType.TEXT_PLAIN:
-                    {
-                        String objString = val as System.String;
-                        retVal = System.Text.Encoding.UTF8.GetBytes(objString);
-                    }
-                    break;
-            }
-           
+                        {
+                            if ( (objectType == typeof(System.ValueType) ) ||
+                                 (val.GetType().FullName.Equals("System.String")))
+                            {
+                                String objString = val as System.String;
+                                String json = "{\"name\":" + "\"" + objString + "\"}";
+                                retVal = System.Text.Encoding.UTF8.GetBytes(json);
+                            }
+                            else
+                            {
+                                //object to be serialised
+                            }
+                        }
+                        break;
+                    default:
+                        {
+                            if ((objectType == typeof(System.ValueType)))
+                            {
+                                if (val.GetType() == typeof(int) ||
+                                    val.GetType() == typeof(long) ||
+                                    val.GetType() == typeof(double) ||
+                                    val.GetType() == typeof(short) ||
+                                    val.GetType() == typeof(bool) ||
+                                    val.GetType() == typeof(char))
+                                {
+                                    //has to be sent as string
+                                    String objString = val.ToString();
+                                    retVal = System.Text.Encoding.UTF8.GetBytes(objString);
+                                }
+                            }
+                            else //an object
+                            {
+                                if (val.GetType() == typeof(System.String))
+                                {
+                                    String objString = val.ToString();
+                                    retVal = System.Text.Encoding.UTF8.GetBytes(objString);
+                                }
+                                //check if the object has ToArray method returning a byte[]
+                                //if not throw error
+                                
+                            }
+                        }
+                        break;
+                }
+            
             return retVal;
         }
     }

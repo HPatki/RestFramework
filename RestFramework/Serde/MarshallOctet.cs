@@ -9,7 +9,7 @@ namespace RestFramework.Serde
 {
     class MarshallOctet
     {
-        internal static Byte[] marshall(HttpResponse response, Object val, Boolean UsrCodeHandledResponse,
+        internal static Byte[] marshall(HttpResponse response, Object val,
             MediaType produces)
         {
             if (response.StatusCode == 0)
