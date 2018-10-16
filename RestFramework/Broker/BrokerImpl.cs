@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using SystemSocket =  System.Net.Sockets.Socket;
+using HttpResp = RestFramework.Annotations.HttpResponse;
 
 using RestFramework.Interface;
-using RestFramework.Transport;
-using RestFramework.Helpers;
+using HttpdServer.Transport;
+using HttpdServer.Helpers;
 using RestFramework.Annotations;
 using RestFramework.Serde;
 using RestFramework.Exceptions;
@@ -30,7 +31,7 @@ namespace RestFramework.Broker
 
         public void Process()
         {
-            var response = new HttpResponse();
+            var response = new HttpResp();
             var mthd = m_Request.getMethod();
             ComponentMethodMapper mpr = null;
             

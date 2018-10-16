@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
-using RestFramework.Transport;
-using RestFramework.Helpers;
+using HttpResp = RestFramework.Annotations.HttpResponse;
+using HttpdServer.Transport;
+using HttpdServer.Helpers;
 
 namespace RestFramework.Serde
 {
     class MarshallOctet
     {
-        internal static Byte[] marshall(HttpResponse response, Object val,
+        internal static Byte[] marshall(HttpResp response, Object val,
             MediaType produces)
         {
             if (response.StatusCode == 0)

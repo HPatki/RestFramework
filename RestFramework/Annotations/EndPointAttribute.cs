@@ -4,8 +4,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using RestFramework.Interface;
-using MethodType = RestFramework.Helpers.Method;
-using RestFramework.Helpers;
+using MethodType = HttpdServer.Helpers.Method;
+using HttpdServer.Helpers;
 
 namespace RestFramework.Annotations
 {

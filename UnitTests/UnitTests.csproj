@@ -63,6 +63,10 @@
     <Compile Include="UnitTest1.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HttpdServer\HttpdServer.csproj">
+      <Project>{934918fd-0afb-4896-9bfa-c51c379ee4a6}</Project>
+      <Name>HttpdServer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RestFramework\RestFramework.csproj">
       <Project>{aa1259f2-dd70-4e20-a501-690093cd43a3}</Project>
       <Name>RestFramework</Name>

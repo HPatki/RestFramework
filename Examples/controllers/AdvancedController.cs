@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 using System.IO;
 
 using RestFramework.Annotations;
-using RestFramework.Transport;
-using RestFramework.Helpers;
+using HttpdServer.Helpers;
 
 namespace RestApplication.controllers
 {

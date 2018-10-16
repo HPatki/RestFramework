@@ -4,41 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using RestFramework.Container;
-using RestFramework.Factories;
-using RestFramework.Interface;
-using HttpdServer.Helpers;
-
 using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.Text.RegularExpressions;
 using System.Reflection;
 using ConfigMgr = System.Configuration.ConfigurationManager;
+using HttpdServer.Helpers;
 
-namespace RestFramework
+namespace HttpdServer
 {
     public class Program
     {
-        private static DelegateTypeFactory  m_delegateFactory;
-        private static ControllerFactory    m_Controllers;
-
+        internal static int m_maxPayLoad;
+       
         //public static AppSettings GetAppSettings () { return m_appSettings; }
-        public static void createFactories()
+
+        public static void createServer()
         {
-            m_delegateFactory = new DelegateTypeFactory();
-            m_Controllers = new ControllerFactory();
-            m_Controllers.ConstructSingleTons();
+            m_maxPayLoad = 1024; //Int32.Parse(ConfigMgr.AppSettings["maxPayLoad"]);
             StatusCodeDesc.init();
-        }
-
-        internal static DelegateTypeFactory getDelegateFactory ()
-        {
-            return m_delegateFactory;
-        }
-
-        internal static ControllerFactory getControllerFactory()
-        {
-            return m_Controllers;
+            HttpdServer.Transport.Socket sock = new HttpdServer.Transport.Socket("127.0.0.1", 15990);
+            sock.StartListening();
         }
 
         //static void Main(string[] args)

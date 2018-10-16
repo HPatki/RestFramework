@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 using System.Reflection;
 using RestFramework.Annotations;
-using RestFramework.Helpers;
+using HttpdServer.Helpers;
 using RestFramework.Broker;
 using RestFramework.Exceptions;
 

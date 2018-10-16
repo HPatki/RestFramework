@@ -5,8 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using RestFramework.Annotations;
-using RestFramework.Transport;
-using RestFramework.Helpers;
+using HttpdServer.Helpers;
 
 namespace RestApplication.controllers
 {

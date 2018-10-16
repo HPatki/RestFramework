@@ -7,11 +7,12 @@ using JSON = System.Runtime.Serialization.Json.DataContractJsonSerializer;
 using System.IO;
 using System.Reflection;
 
-using RestFramework.Transport;
+using HttpdServer.Transport;
 using RestFramework.Interface;
 using RestFramework.Annotations;
-using RestFramework.Helpers;
+using HttpdServer.Helpers;
 using RestFramework.Exceptions;
+using HttpResp = RestFramework.Annotations.HttpResponse;
 
 namespace RestFramework.Serde
 {
@@ -19,7 +20,7 @@ namespace RestFramework.Serde
     {
         private static char[] m_PathQueryVarSplitter = { '=', '&' };
 
-        internal static object[] Extract(HttpRequest request, HttpResponse response,
+        internal static object[] Extract(HttpRequest request, HttpResp response,
             List<BaseAttribute> parameters, MediaType consumes
             )
         {
@@ -29,7 +30,7 @@ namespace RestFramework.Serde
             Int32 len;
             foreach (BaseAttribute p in parameters)
             {
-                if (p is HttpResponse)
+                if (p is HttpResp)
                 {
                     objects.Add (response);//special handling !!
                     continue;

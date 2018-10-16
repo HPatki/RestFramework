@@ -4,7 +4,7 @@ using System.ServiceModel.Description;
 using System.ServiceModel.Channels;
 
 using System.Reflection;
-using RestFramework.Helpers;
+using HttpdServer.Helpers;
 using RestFramework.Annotations;
 
 using RestFramework.Factories;

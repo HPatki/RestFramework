@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-
+using HttpResp = RestFramework.Annotations.HttpResponse;
 using System.Reflection;
 using RestFramework.Annotations;
 using RestFramework.Interface;
-using RestFramework.Transport;
-using RestFramework.Helpers;
+using HttpdServer.Transport;
+using HttpdServer.Helpers;
 
 namespace RestFramework.Broker
 {
@@ -65,9 +65,9 @@ namespace RestFramework.Broker
                 }
                 else
                 {
-                    if (Param.ParameterType == typeof(HttpResponse))
+                    if (Param.ParameterType == typeof(HttpResp))
                     {
-                        m_SequenceOfParams.Add(new HttpResponse());
+                        m_SequenceOfParams.Add(new HttpResp());
                     }
 
                     continue;

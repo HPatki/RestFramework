@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{AA1259F2-DD70-4E20-A501-690093CD43A3}</ProjectGuid>
+    <ProjectGuid>{934918FD-0AFB-4896-9BFA-C51C379EE4A6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RestFramework</RootNamespace>
-    <AssemblyName>RestFramework</AssemblyName>
+    <RootNamespace>HttpdServer</RootNamespace>
+    <AssemblyName>HttpdServer</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -31,17 +29,11 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
-    <Reference Include="System.ServiceModel.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,39 +41,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Annotations\BaseAttribute.cs" />
-    <Compile Include="Annotations\HeaderParam.cs" />
-    <Compile Include="Annotations\RouteAttribute.cs" />
-    <Compile Include="Annotations\EndPointAttribute.cs" />
-    <Compile Include="Annotations\BodyParam.cs" />
-    <Compile Include="Annotations\BodyQueryParam.cs" />
-    <Compile Include="Annotations\PathQueryVariable.cs" />
-    <Compile Include="Annotations\PathVariable.cs" />
-    <Compile Include="Broker\BrokerImpl.cs" />
-    <Compile Include="Broker\ComponentMethodMapper.cs" />
-    <Compile Include="Exceptions\SameEndPointURL.cs" />
-    <Compile Include="Exceptions\UnsupportedMediaType.cs" />
-    <Compile Include="Factories\ControllerFactory.cs" />
-    <Compile Include="Broker\MethodDetails.cs" />
-    <Compile Include="Container\HostContainer.cs" />
-    <Compile Include="Exceptions\URLNotFound.cs" />
-    <Compile Include="Factories\DelegateTypeFactory.cs" />
-    <Compile Include="Serde\ExtractMethodParams.cs" />
-    <Compile Include="Interface\IBroker.cs" />
-    <Compile Include="Serde\MarshallOctet.cs" />
+    <Compile Include="Helpers\MediaType.cs" />
+    <Compile Include="Helpers\MessageInterceptor.cs" />
+    <Compile Include="Helpers\Method.cs" />
+    <Compile Include="Helpers\StatusCodeDesc.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Transport\HttpBody.cs" />
+    <Compile Include="Transport\HttpEntityHeader.cs" />
+    <Compile Include="Transport\HttpHeader.cs" />
+    <Compile Include="Transport\HttpRequest.cs" />
+    <Compile Include="Transport\HttpResponse.cs" />
+    <Compile Include="Transport\HttpResponseHeader.cs" />
+    <Compile Include="Transport\HttpStreamReader.cs" />
+    <Compile Include="Transport\Socket.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\HttpdServer\HttpdServer.csproj">
-      <Project>{934918fd-0afb-4896-9bfa-c51c379ee4a6}</Project>
-      <Name>HttpdServer</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
