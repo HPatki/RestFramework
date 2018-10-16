@@ -29,8 +29,6 @@ namespace RestFramework.Serde
             Int32 len;
             foreach (BaseAttribute p in parameters)
             {
-                len = 0;
-
                 if (p is HttpResponse)
                 {
                     objects.Add (response);//special handling !!
@@ -85,13 +83,13 @@ namespace RestFramework.Serde
                     //TODO
                 }
 
-                objects.Add(ChangeType(ParamToAdd, p.getType(), consumes, len));
+                objects.Add(ChangeType(ParamToAdd, p.getType(), consumes));
             }
 
             return objects.ToArray();
         }
 
-        private static Object ChangeType (Object ParamToAdd, Type T, MediaType consumes, Int32 len)
+        private static Object ChangeType (Object ParamToAdd, Type T, MediaType consumes)
         {
             Object toReturn = null;
             Type ParamType = ParamToAdd.GetType(); //string or Byte[]
@@ -104,12 +102,12 @@ namespace RestFramework.Serde
 
                 if (ParamType == typeof(System.Byte[]))
                 {
-                    stream = new MemoryStream((Byte[])ParamToAdd, 0, len);
+                    stream = new MemoryStream((Byte[])ParamToAdd);
                 }
                 else //it will always be string
                 {
                     stream = new MemoryStream(
-                        System.Text.Encoding.UTF8.GetBytes((String)ParamToAdd), 0, len);
+                        System.Text.Encoding.UTF8.GetBytes((String)ParamToAdd));
                 }
 
                 try
