@@ -33,7 +33,8 @@ namespace RestFramework.Serde
 
                 if (p is HttpResponse)
                 {
-                    ParamToAdd = response;
+                    objects.Add (response);//special handling !!
+                    continue;
                 }
 
                 if (p is PathVariable)
@@ -77,7 +78,6 @@ namespace RestFramework.Serde
                 if (p is BodyParam)
                 {
                     ParamToAdd = request.GetBody();
-                    len = (Int32)request.GetBodyLength();
                 }
 
                 if (p is BodyQueryParam)
@@ -135,6 +135,10 @@ namespace RestFramework.Serde
                 {
                     toReturn = Convert.ChangeType(ParamToAdd, T);
                 }
+                else
+                {
+                    //check if object has a constructor taking byte
+                }
 
                 if (ParamToAdd.GetType().BaseType == typeof(System.ValueType))
                 {
@@ -151,6 +155,7 @@ namespace RestFramework.Serde
                             Object[] arguments = new Object[1];
                             arguments[0] = ParamToAdd;
                             toReturn = info.Invoke(arguments);
+                            break;
                         }
                     }
                 }

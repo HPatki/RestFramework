@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 
 namespace RestFramework.Helpers
 {
@@ -12,7 +13,8 @@ namespace RestFramework.Helpers
         APPLICATION_OCTET_STREAM,
         TEXT_PLAIN,
         TEXT_HTML,
-        APPLICATION_JPG
+        APPLICATION_JPG,
+        APPLICATION_PNG
     }
 
     public class MediaTypeContent
@@ -36,7 +38,10 @@ namespace RestFramework.Helpers
                     ct = "text/plain;charset=utf-8";
                     break;
                 case MediaType.APPLICATION_JPG:
-                    ct = "image/jpg";
+                    ct = "image/jpeg";
+                    break;
+                case MediaType.APPLICATION_PNG:
+                    ct = "image/png";
                     break;
             }
 
@@ -90,6 +95,23 @@ namespace RestFramework.Helpers
                                 }
                                 //check if the object has ToArray method returning a byte[]
                                 //if not throw error
+                                else
+                                {
+                                    MethodInfo MInfo = val.GetType().GetMethod("ToArray");
+                                    if (MInfo != null)
+                                    {
+                                        ParameterInfo PInfo = MInfo.ReturnParameter;
+                                        if (PInfo.ParameterType == typeof(System.Byte[]))
+                                        {
+                                            retVal = (System.Byte[])MInfo.Invoke(val, null);
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //throw error
+                                    }
+                                }
                                 
                             }
                         }

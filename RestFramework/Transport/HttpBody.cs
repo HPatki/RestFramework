@@ -8,22 +8,35 @@ namespace RestFramework.Transport
 {
     internal class HttpBody
     {
-        private MemoryStream bc = new MemoryStream();
+        private Byte[] bc;
+        private Int64 m_PresentLen;
 
-        internal void addBodyContent(ref byte[] content)
+        internal void SetLengthOfBody(Int64 len)
         {
-            bc.Seek(0, SeekOrigin.End);
-            bc.Write(content, 0, content.Length);
+            bc = new Byte[len];
+            m_PresentLen = 0;
+        }
+
+        internal void addBodyContent(byte[] content, Int64 len)
+        {
+            Int64 upto = m_PresentLen + len;
+            for (Int64 i = m_PresentLen, j = 0; i < upto; ++i, ++j)
+            {
+                try
+                {
+                    bc[i] = content[j];
+                    ++m_PresentLen;
+                }
+                catch (Exception err)
+                {
+                    System.Console.WriteLine("Error");
+                }
+            }
         }
 
         internal Byte[] GetBody
         {
-            get { return bc.GetBuffer(); }
-        }
-
-        internal Int64 GetBodyLength
-        {
-            get { return bc.Length; }
+            get { return bc; }
         }
     }
 }

@@ -14,7 +14,7 @@ namespace TestClient
             while (true)
             {
                 HttpClient client = new HttpClient();
-                var response = client.PostAsync("http://localhost:15990/basic/getName/harshad/dummy/patki?salutation=Mr&middlename=suhas", null);
+                var response = client.PostAsync("http://localhost:15990/basic/greet/harshad/dummy/suhas", null);
                 //response.Start();
                 while (response.IsCompleted == false)
                 {

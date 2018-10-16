@@ -38,6 +38,8 @@ namespace RestApplication
     {
         static void Main(string[] args)
         {
+            Regex m_parser = new Regex("\r\n\r\n");
+            String[] part = m_parser.Split("Harshad Suhas Patki\r\n\r\n");
             RestFramework.Program.createFactories();
             RestFramework.Program.createServer();
         }

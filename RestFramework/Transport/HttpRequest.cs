@@ -24,25 +24,25 @@ namespace RestFramework.Transport
             return m_Header.GetLengthOfBody();
         }
 
+        public void SetLengthOfBody(Int64 len)
+        {
+            m_Body.SetLengthOfBody(len);
+        }
+
         public HttpRequest ExtractHeaders()
         {
             m_Header.ExtractHeaders();
             return this;
         }
 
-        public void ConcatenateBodyContent(byte[] content)
+        public void ConcatenateBodyContent(byte[] content, Int64 len)
         {
-            m_Body.addBodyContent(ref content);
+            m_Body.addBodyContent(content,len);
         }
 
         public Byte[] GetBody()
         {
             return m_Body.GetBody;
-        }
-
-        public Int64 GetBodyLength()
-        {
-            return m_Body.GetBodyLength;
         }
 
         public Method getMethod()
