@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("RestFramework")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Gap Inc.")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("RestFramework")]
-[assembly: AssemblyCopyright("Copyright © Gap Inc. 2017")]
+[assembly: AssemblyCopyright("Copyright © Harshad Patki 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
