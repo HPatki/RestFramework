@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HttpdServer.Transport;
 
 namespace RestFramework.Annotations
 {
@@ -39,12 +40,12 @@ namespace RestFramework.Annotations
 
     public class HttpResponse : BaseAttribute
     {
-        private HttpResponse m_HttpResponse;
+        private HttpdServer.Transport.HttpResponse m_HttpResponse;
 
         public HttpResponse()
             : base("HttpResponse")
         {
-            m_HttpResponse = new HttpResponse();
+            m_HttpResponse = new HttpdServer.Transport.HttpResponse();
         }
 
         public String ContentEncoding
@@ -82,10 +83,9 @@ namespace RestFramework.Annotations
             m_HttpResponse.AddResponseHeader(name, val);
         }
 
-        public Byte[] Body
+        public HttpBody Body
         {
             get { return m_HttpResponse.Body; }
-            set { m_HttpResponse.Body = value; }
         }
 
         public byte[] Bytes()

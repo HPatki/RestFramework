@@ -8,6 +8,7 @@ using RestFramework.Container;
 using RestFramework.Factories;
 using RestFramework.Interface;
 using HttpdServer.Helpers;
+using HttpdServer.Transport;
 
 using System.ServiceModel;
 using System.ServiceModel.Description;
@@ -23,12 +24,16 @@ namespace RestFramework
         private static ControllerFactory    m_Controllers;
 
         //public static AppSettings GetAppSettings () { return m_appSettings; }
+
         public static void createFactories()
         {
+            HttpStreamReader.HookFunc = Broker.BrokerImpl.Process;
+        
             m_delegateFactory = new DelegateTypeFactory();
             m_Controllers = new ControllerFactory();
             m_Controllers.ConstructSingleTons();
-            StatusCodeDesc.init();
+
+            HttpdServer.Program.createServer();
         }
 
         internal static DelegateTypeFactory getDelegateFactory ()

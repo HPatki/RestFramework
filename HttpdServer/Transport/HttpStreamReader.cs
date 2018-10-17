@@ -12,6 +12,21 @@ namespace HttpdServer.Transport
     public class HttpStreamReader
     {
         private static Regex    m_parser = new Regex("\r\n\r\n");
+        public delegate byte[] HookFunction (HttpRequest request);
+
+        //this is set by the main program and not the caller
+        private static HookFunction m_fn = Program.DummyHookFunction; 
+
+        private static byte[] CallHook (HttpRequest req)
+        {
+            return m_fn(req);
+        }
+
+        public static HookFunction HookFunc
+        {
+            get { return m_fn; }
+            set { m_fn = value; }
+        }
         
         public static void ListenSocketHandler(Object state) //have to confirm to delegate signature
         {
@@ -28,8 +43,8 @@ namespace HttpdServer.Transport
                 byte[] bytes = new byte[8096];
 
                 // An incoming connection needs to be processed.
-                Boolean cont = true;
-                while (cont)
+                Boolean BodyProcessed = false;
+                while (false == BodyProcessed)
                 {
                     if (Program.m_maxPayLoad <= runCountOfBytesRecvd)
                         break; //error
@@ -52,10 +67,10 @@ namespace HttpdServer.Transport
                         httpRequest.SetLengthOfBody(BodyLength);
 
                         String ContentType = httpRequest.GetHeaderValue("content-type");
-                        if (null != ContentType  && ContentType.ToUpper().Contains("MULTIPART/FORM-DATA"))
+                        if (null != ContentType && ContentType.ToUpper().Contains("MULTIPART/FORM-DATA"))
                         {
                             SkipSegments += 1;
-                            
+
                         }
 
                         if (false == splitted[1].Equals("")) //contains body part
@@ -68,7 +83,9 @@ namespace HttpdServer.Transport
                                 headerBytes += (len + 4);
                             }
 
-                             ReadBody2(handler, httpRequest, bytes, headerBytes, bytesRec,
+                            BodyProcessed = true;
+
+                            ReadBody2(handler, httpRequest, bytes, headerBytes, bytesRec,
                                  BodyLength - len);
 
                         }
@@ -91,6 +108,7 @@ namespace HttpdServer.Transport
                                         splitted = m_parser.Split(data);
                                         headerBytes += System.Text.Encoding.UTF8.GetBytes(splitted[0]).Length + 4;
 
+                                        BodyProcessed = true;
                                         ReadBody2(handler, httpRequest, bytes, headerBytes, bytesRec,
                                             BodyLength - System.Text.Encoding.UTF8.GetBytes(splitted[0]).Length);
                                     }
@@ -98,6 +116,7 @@ namespace HttpdServer.Transport
                             }
                             else
                             {
+                                BodyProcessed = true;
                                 ReadBody(BodyLength, handler, new byte[0], httpRequest);
                             }
 
@@ -110,6 +129,10 @@ namespace HttpdServer.Transport
                     }
                 }
 
+                Byte[] ret = CallHook(httpRequest);
+                handler.Send(ret);
+
+                //CallHook (
                 StartMain.Stop();
                 System.Console.WriteLine("Main loop time " + StartMain.ElapsedMilliseconds);
             }
@@ -135,18 +158,19 @@ namespace HttpdServer.Transport
                 strBldr.Append(rr);
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(strBldr.ToString());
                 handler.Send(msg);
-                handler.Close();
             }
-
-            try
+            finally
             {
-                handler.Disconnect(false);
-                //handler.Close(5);
-            }
-            catch (Exception err)
-            {
-                System.Console.WriteLine("error disconnecting the socket::" + err.Message);
-                Environment.Exit(-1);
+                try
+                {
+                    handler.Disconnect(false);
+                    //handler.Close(5);
+                }
+                catch (Exception err)
+                {
+                    System.Console.WriteLine("error disconnecting the socket::" + err.Message);
+                    Environment.Exit(-1);
+                }
             }
         }
 
@@ -191,6 +215,11 @@ namespace HttpdServer.Transport
                     System.Console.WriteLine("");
                 httpRequest.ConcatenateBodyContent(bytes,bytesRec);
             }
+        }
+
+        public static byte[] DefaultHookFunc (HttpRequest request)
+        {
+            return null;
         }
         
     }

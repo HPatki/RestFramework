@@ -18,25 +18,17 @@ using RestFramework.Exceptions;
 
 namespace RestFramework.Broker
 {
-    sealed class BrokerImpl : IBroker
+    sealed class BrokerImpl
     {
-        private HttpRequest m_Request;
-        private SystemSocket m_Handler;
-
-        public BrokerImpl(HttpRequest request, SystemSocket handler)
+        public static Byte[] Process(HttpRequest Request)
         {
-            m_Request = request;
-            m_Handler = handler;
-        }
-
-        public void Process()
-        {
+            Byte[] responseStream = null;
             var response = new HttpResp();
-            var mthd = m_Request.getMethod();
+            var mthd = Request.getMethod();
             ComponentMethodMapper mpr = null;
             
             Object[] ret = Program.getControllerFactory().getMethodMapper(mthd, 
-                                                            m_Request.getRequestURI());
+                                                            Request.getRequestURI());
             mpr = ret[1] as ComponentMethodMapper;
             Object retVal = null;
             
@@ -44,7 +36,7 @@ namespace RestFramework.Broker
             {
                 try
                 {
-                    Object[] parameters = ExtractMethodParams.Extract(m_Request, response,
+                    Object[] parameters = ExtractMethodParams.Extract(Request, response,
                         mpr.getParamList(), mpr.Consumes);
 
                     /* Invoke using MethodInfo is way faster than a delegate
@@ -66,44 +58,38 @@ namespace RestFramework.Broker
                     response.ContentType = MediaTypeContent.GetContentType(MediaType.TEXT_PLAIN);
                     retVal = "Internal Error " + err.Message;
                 }
-                finally
-                {
-                    try
-                    {
-                        //marshall the response 
-                        //check if the response was passed to user code
-                        Byte[] responseStream = MarshallOctet.marshall(response, retVal, mpr.Produces);
-
-                        m_Handler.Send(responseStream);
-                    }
-                    catch (ArgumentNullException err)
-                    {
-                        //TODO
-                    }
-                    catch (SocketException err)
-                    {
-                        //TODO
-                    }
-                    catch (ObjectDisposedException err)
-                    {
-                        //TODO
-                    }
-                    catch (Exception err)
-                    {
-                        //TODO
-                    }
-                }
-
             }
             else
             {
-                response.StatusCode = 200;
+                response.StatusCode = 404;
+                response.ContentType = MediaTypeContent.GetContentType(MediaType.TEXT_PLAIN);
+                retVal = "Mapper for URL " + Request.getRequestURI() + " not found";
             }
 
-            //System.Console.WriteLine (m_Handler.Send(response.Bytes()));
-            //m_Handler.LingerState = new LingerOption(true,2);
-            //m_Handler.Disconnect(false);
+            try
+            {
+                //marshall the response 
+                //check if the response was passed to user code
+                responseStream = MarshallOctet.marshall(response, retVal, mpr.Produces);
+            }
+            catch (ArgumentNullException err)
+            {
+                //TODO
+            }
+            catch (SocketException err)
+            {
+                //TODO
+            }
+            catch (ObjectDisposedException err)
+            {
+                //TODO
+            }
+            catch (Exception err)
+            {
+                //TODO
+            }
 
+            return responseStream;
         }
     }
 }

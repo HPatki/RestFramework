@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using RestFramework;
 using RestApplication.controllers;
 using HttpdServer;
+using HttpdServer.Transport;
 
 namespace RestApplication
 {
@@ -39,10 +40,7 @@ namespace RestApplication
     {
         static void Main(string[] args)
         {
-            Regex m_parser = new Regex("\r\n\r\n");
-            String[] part = m_parser.Split("Harshad Suhas Patki\r\n\r\n");
             RestFramework.Program.createFactories();
-            HttpdServer.Program.createServer();
         }
     }
 }

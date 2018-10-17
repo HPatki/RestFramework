@@ -10,9 +10,9 @@ namespace HttpdServer.Transport
 {
     public class HttpRequest
     {
-        private HttpHeader  m_Header = new HttpHeader();
+        private HttpHeader  m_Header = new HttpHeader();   
         private HttpBody    m_Body = new HttpBody();
-
+        
         public HttpRequest ConcatenateRawHeaderContent(String content)
         {
             m_Header.ConcatenateRawContent(content);

@@ -28,10 +28,13 @@ namespace RestFramework.Serde
             //package the body correctly
             String objString = val as System.String ;
 
-            response.Body = MediaTypeContent.GetByte(val, produces);
+            Byte[] BodyContent = MediaTypeContent.GetByte(val, produces);
+            response.ContentLength = (UInt64)BodyContent.Length;
             
-            response.ContentLength = (UInt64)response.Body.Length;
-
+            HttpBody Body = response.Body;
+            Body.SetLengthOfBody(BodyContent.Length);
+            Body.addBodyContent(BodyContent, BodyContent.Length);
+            
             return response.Bytes();
         }
     }

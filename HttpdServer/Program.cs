@@ -10,14 +10,34 @@ using System.Text.RegularExpressions;
 using System.Reflection;
 using ConfigMgr = System.Configuration.ConfigurationManager;
 using HttpdServer.Helpers;
+using HttpdServer.Transport;
 
 namespace HttpdServer
 {
     public class Program
     {
         internal static int m_maxPayLoad;
-       
+        private static String def = "The HookFunction is not set. The Http Server will not do anything " + 
+                " useful other than just parsing the request. Set the function using " + 
+                " HttpStreamReader.HookFunc to make it do something interesting";
+        private static Byte[] defByte = null;
+
         //public static AppSettings GetAppSettings () { return m_appSettings; }
+
+        internal static byte[] DummyHookFunction(HttpRequest req)
+        {
+            if ( null == defByte)
+                defByte = System.Text.Encoding.UTF8.GetBytes(def);
+
+            HttpResponse response = new HttpResponse();
+            response.StatusDesc = StatusCodeDesc.GetStatusDesc(200);
+            response.ContentType = MediaTypeContent.GetContentType(MediaType.TEXT_PLAIN);
+            response.ContentLength = (UInt64)defByte.Length;
+            HttpBody body = response.Body;
+            body.SetLengthOfBody(defByte.Length);
+            body.addBodyContent(defByte, defByte.Length);
+            return response.Bytes(); 
+        }
 
         public static void createServer()
         {
@@ -27,29 +47,5 @@ namespace HttpdServer
             sock.StartListening();
         }
 
-        //static void Main(string[] args)
-        //{
-        //    m_maxPayLoad = Int32.Parse(ConfigMgr.AppSettings["maxPayLoad"]);
-        //    createFactories();
-
-        //    RestFramework.Transport.Socket sock = new Transport.Socket("127.0.0.1",15990);
-        //    sock.StartListening();
-
-            //MethodInfo info = typeof(HostContainer).GetMethod("addService");
-            //ParameterInfo [] paramss = info.GetParameters();
-            //RuntimeParameterInfo
-            //Object[] methodArgs = new Object[paramss.Length];
-            //for (int i = 0; i < paramss.Length; ++i)
-            //{
-            //    methodArgs[i] = Convert.ChangeType(null, paramss[i].ParameterType);
-            //}
-            
-            //HostContainer hosted = new HostContainer(typeof(BrokerImpl));
-            //info.Invoke(hosted, methodArgs);
-
-            //hosted.addService(typeof(IBroker), , new WebHttpBinding(), new WebHttpBehavior());
-
-            //hosted.StartService();
-        //}
     }
 }

@@ -11,13 +11,13 @@ namespace HttpdServer.Transport
         private Byte[] bc;
         private Int64 m_PresentLen;
 
-        internal void SetLengthOfBody(Int64 len)
+        public void SetLengthOfBody(Int64 len)
         {
             bc = new Byte[len];
             m_PresentLen = 0;
         }
 
-        internal void addBodyContent(byte[] content, Int64 len)
+        public void addBodyContent(byte[] content, Int64 len)
         {
             Int64 upto = m_PresentLen + len;
             for (Int64 i = m_PresentLen, j = 0; i < upto; ++i, ++j)

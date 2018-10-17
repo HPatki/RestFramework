@@ -11,7 +11,7 @@ namespace HttpdServer.Transport
         private String              m_StatusDesc;
         private HttpEntityHeader    m_EntityHeader;
         private HttpResponseHeader  m_ResponseHeader;
-        private Byte[]              m_Body;
+        private HttpBody            m_Body;
 
         public HttpResponse()
             //: base("HttpResponse")
@@ -19,6 +19,7 @@ namespace HttpdServer.Transport
             //setType(typeof(HttpResponse));
             m_EntityHeader = new HttpEntityHeader();
             m_ResponseHeader = new HttpResponseHeader();
+            m_Body = new HttpBody();
         }
 
         public String ContentEncoding
@@ -56,10 +57,9 @@ namespace HttpdServer.Transport
             m_ResponseHeader.AddHeader(name, val);
         }
 
-        public Byte[] Body
+        public HttpBody Body
         {
             get { return m_Body; }
-            set { m_Body = value; }
         }
 
         public byte[] Bytes()
@@ -76,10 +76,10 @@ namespace HttpdServer.Transport
             strBldr.Append("\r\n");
 
             byte[] msgheader = System.Text.Encoding.ASCII.GetBytes(strBldr.ToString());
-
-            byte[] arry = new byte[msgheader.Length + m_Body.Length];
+            byte[] bodyBytes = m_Body.GetBody;
+            byte[] arry = new byte[msgheader.Length + bodyBytes.Length];
             msgheader.CopyTo(arry, 0);
-            m_Body.CopyTo(arry, msgheader.Length);
+            bodyBytes.CopyTo(arry, msgheader.Length);
             
             return arry;
         }
