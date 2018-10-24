@@ -24,7 +24,6 @@ namespace RestApplication.controllers
             Wrtr.Flush();
             Wrtr.Close();
             response.StatusCode = 200;
-            response.AddResponseHeader("Content-Disposition", "attachment;filename=" + "dummy.png");
             return "Resource Created successfully";
         }
 
@@ -50,6 +49,44 @@ namespace RestApplication.controllers
                 }
             }
             response.AddResponseHeader("Content-Disposition", "attachment;filename=" + "dummy.png");
+            return new MemoryStream(returned.ToArray());
+        }
+
+        //BodyParam 
+        [EndPointAttribute(route: "/file/excel", consumes: MediaType.APPLICATION_OCTET_STREAM,
+            produces: MediaType.TEXT_PLAIN, method: "POST")]
+        public String ReadFile1([BodyParam("file")]MemoryStream InputFile, HttpResponse response)
+        {
+            BinaryWriter Wrtr = new BinaryWriter(new FileStream("F:/tmp/dummy.csv", FileMode.Create));
+            Wrtr.Write(InputFile.ToArray());
+            Wrtr.Flush();
+            Wrtr.Close();
+            response.StatusCode = 200;
+            return "Resource Created successfully";
+        }
+
+        //BodyParam 
+        [EndPointAttribute(route: "/file/excel", produces: MediaType.APPLICATION_OCTET_STREAM)]
+        public MemoryStream ReadFile1(HttpResponse response)
+        {
+            response.StatusCode = 200;
+            Stream strm = new FileStream("F:/tmp/dummy.csv", FileMode.Open);
+            BinaryReader Rdr = new BinaryReader(strm);
+            List<Byte> returned = new List<Byte>();
+            while (true)
+            {
+                try
+                {
+                    Byte read = Rdr.ReadByte();
+                    returned.Add(read);
+                }
+                catch (System.IO.EndOfStreamException)
+                {
+                    Rdr.Close();
+                    break;
+                }
+            }
+            response.AddResponseHeader("Content-Disposition", "attachment;filename=" + "dummy.csv");
             return new MemoryStream(returned.ToArray());
         }
     }

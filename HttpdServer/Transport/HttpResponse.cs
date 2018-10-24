@@ -75,8 +75,8 @@ namespace HttpdServer.Transport
 
             strBldr.Append("\r\n");
 
-            byte[] msgheader = System.Text.Encoding.ASCII.GetBytes(strBldr.ToString());
-            byte[] bodyBytes = m_Body.GetBody;
+            byte[] msgheader = System.Text.Encoding.UTF8.GetBytes(strBldr.ToString());
+            byte[] bodyBytes = m_Body.Body;
             byte[] arry = new byte[msgheader.Length + bodyBytes.Length];
             msgheader.CopyTo(arry, 0);
             bodyBytes.CopyTo(arry, msgheader.Length);

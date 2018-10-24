@@ -7,7 +7,7 @@ using SystemSocket = System.Net.Sockets.Socket;
 
 namespace HttpdServer.Transport
 {
-    internal class Socket
+    internal class Socket : IDisposable
     {
         private IPHostEntry                 m_ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
         private IPAddress                   m_ipAddress;
@@ -15,6 +15,11 @@ namespace HttpdServer.Transport
         private int                         m_port;
         private String                      m_address;
         private SystemSocket                m_listeningSocket;
+
+        public void Dispose()
+        {
+            m_listeningSocket.Dispose();
+        }
 
         public Socket(String address, int port)
         {
@@ -71,8 +76,9 @@ namespace HttpdServer.Transport
                 // Start listening for connections.  
                 while (true)
                 {
-                    // Program is suspended while waiting for an incoming connection.  
+                    // Program is suspended while waiting for an incoming connection. 
                     SystemSocket handler = m_listeningSocket.Accept();
+                    System.Console.WriteLine(handler.Handle);
 
                     var ThreadMain = System.Diagnostics.Stopwatch.StartNew();
                     //ThreadPool.QueueUserWorkItem(Socket.StarterFunction, handler);

@@ -33,7 +33,7 @@ namespace RestFramework.Serde
             
             HttpBody Body = response.Body;
             Body.SetLengthOfBody(BodyContent.Length);
-            Body.addBodyContent(BodyContent, BodyContent.Length);
+            Body.addBodyContent(BodyContent, 0, BodyContent.Length);
             
             return response.Bytes();
         }

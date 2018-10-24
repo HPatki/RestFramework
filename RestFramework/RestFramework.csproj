@@ -66,6 +66,9 @@
     <Compile Include="Container\HostContainer.cs" />
     <Compile Include="Exceptions\URLNotFound.cs" />
     <Compile Include="Factories\DelegateTypeFactory.cs" />
+    <Compile Include="Serde\BodyFileExtractor.cs" />
+    <Compile Include="Serde\BodyBinaryExtractor.cs" />
+    <Compile Include="Serde\BodyJSONExtractor.cs" />
     <Compile Include="Serde\ExtractMethodParams.cs" />
     <Compile Include="Interface\IBroker.cs" />
     <Compile Include="Serde\MarshallOctet.cs" />

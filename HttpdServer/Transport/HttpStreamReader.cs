@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.IO;
+using System.Net.Sockets;
 using SystemSocket = System.Net.Sockets.Socket;
 using System.Collections.ObjectModel;
 
@@ -40,6 +41,7 @@ namespace HttpdServer.Transport
                 int runCountOfBytesRecvd = 0;
 
                 String data = null, payload = null;
+                
                 byte[] bytes = new byte[8096];
 
                 // An incoming connection needs to be processed.
@@ -50,6 +52,9 @@ namespace HttpdServer.Transport
                         break; //error
 
                     int bytesRec = handler.Receive(bytes);
+                    
+                    Program.writer.WriteLine(System.Text.Encoding.UTF8.GetString(bytes));
+                    
                     runCountOfBytesRecvd += bytesRec;
                     data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
 
@@ -59,69 +64,12 @@ namespace HttpdServer.Transport
                         //header end. Rest of the contents belong to body if any
                         var splitted = m_parser.Split(data);
                         httpRequest.ConcatenateRawHeaderContent(splitted[0]);
-
-                        //httpRequest Body processing - START
-                        Int32 headerBytes = System.Text.Encoding.UTF8.GetBytes(splitted[0]).Length + 4;
-                        Int32 SkipSegments = 1;
                         int BodyLength = httpRequest.ExtractHeaders().GetLengthOfBody();
-                        httpRequest.SetLengthOfBody(BodyLength);
-
-                        String ContentType = httpRequest.GetHeaderValue("content-type");
-                        if (null != ContentType && ContentType.ToUpper().Contains("MULTIPART/FORM-DATA"))
-                        {
-                            SkipSegments += 1;
-
-                        }
-
-                        if (false == splitted[1].Equals("")) //contains body part
-                        {
-                            Int32 len = 0;
-
-                            if (2 == SkipSegments)
-                            {
-                                len = System.Text.Encoding.UTF8.GetBytes(splitted[1]).Length;
-                                headerBytes += (len + 4);
-                            }
-
-                            BodyProcessed = true;
-
-                            ReadBody2(handler, httpRequest, bytes, headerBytes, bytesRec,
-                                 BodyLength - len);
-
-                        }
-                        else //only header has been read so far
-                        {
-                            data = "";
-                            runCountOfBytesRecvd = 0;
-
-                            if (2 == SkipSegments) //multipart form-data
-                            {
-                                bool loop = true;
-                                while (loop)
-                                {
-                                    bytesRec = handler.Receive(bytes);
-                                    runCountOfBytesRecvd += bytesRec;
-                                    data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
-                                    if (m_parser.IsMatch(data))
-                                    {
-                                        loop = false;
-                                        splitted = m_parser.Split(data);
-                                        headerBytes += System.Text.Encoding.UTF8.GetBytes(splitted[0]).Length + 4;
-
-                                        BodyProcessed = true;
-                                        ReadBody2(handler, httpRequest, bytes, headerBytes, bytesRec,
-                                            BodyLength - System.Text.Encoding.UTF8.GetBytes(splitted[0]).Length);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                BodyProcessed = true;
-                                ReadBody(BodyLength, handler, new byte[0], httpRequest);
-                            }
-
-                        }
-
+                        Int32 headerBytes = System.Text.Encoding.UTF8.GetBytes(splitted[0]).Length + 4;            
+                        //httpRequest Body processing - START
+                        BodyProcessed = true;
+                        ExtractBody(bytes, bytesRec, handler, httpRequest, headerBytes, BodyLength);
+                        
                     }
                     else
                     {
@@ -130,9 +78,22 @@ namespace HttpdServer.Transport
                 }
 
                 Byte[] ret = CallHook(httpRequest);
-                handler.Send(ret);
+                int sent = 0, start =0, remaining = ret.Length ;
+                do
+                {
+                    sent = handler.Send(ret, start, remaining, System.Net.Sockets.SocketFlags.None);
+                    if (sent < remaining)
+                    {
+                        start = sent;
+                        remaining = remaining - sent;
+                    }
+                    else
+                    {
+                        remaining = remaining - sent;
+                    }
 
-                //CallHook (
+                } while (remaining > 0);
+                
                 StartMain.Stop();
                 System.Console.WriteLine("Main loop time " + StartMain.ElapsedMilliseconds);
             }
@@ -163,7 +124,11 @@ namespace HttpdServer.Transport
             {
                 try
                 {
+                    //wait till all the data is sent
+                    LingerOption linger = new LingerOption(true, 5); 
+                    handler.LingerState = linger;
                     handler.Disconnect(false);
+                    //handler = null;
                     //handler.Close(5);
                 }
                 catch (Exception err)
@@ -174,47 +139,60 @@ namespace HttpdServer.Transport
             }
         }
 
-        private static void ReadBody2(SystemSocket handler, HttpRequest httpRequest,byte[] bytes,
-                                      int headerBytes, int bytesRec,int PendingBodyLength 
-                                      )
+        private static void ExtractBody(Byte[] bytes, Int32 BodyBytesInHeader, SystemSocket Handler, HttpRequest httpRequest,
+                                 Int32 HeaderBytesToSkip,
+                                 Int32 BodyLength)
         {
-            //BugFix-splitted will contain multiple parts all of which 
-            //need to be considered to know how much of body has been
-            //read. This was not happening
-            List<Byte> Bldr = new List<Byte>();
-            for (int i = headerBytes; i < bytesRec; ++i)
-            {
-                Bldr.Add(bytes[i]);
-            }
+            httpRequest.SetLengthOfBody(BodyLength);
 
-            if (Bldr.Count >= PendingBodyLength)
-            {
-                ReadBody(0, handler, Bldr.ToArray(), httpRequest);
-            }
-            else
-            {
-
-                ReadBody(PendingBodyLength - Bldr.Count, handler, Bldr.ToArray(), httpRequest);
-            }
+            //read in the complete body first
+            ReadBody(Handler, httpRequest, bytes, BodyBytesInHeader, BodyLength, HeaderBytesToSkip);
         }
 
-        private static void ReadBody(int BytesToRead, SystemSocket handler, byte[] BodyContent, HttpRequest httpRequest)
+        private static void ReadBody(SystemSocket handler, HttpRequest httpRequest,
+                                byte[] BodyContent, Int32 BodyBytesInHeader, Int32 BodyLength, Int32 HeaderBytesToSkip)
         {
-            byte[] bytes = new byte[1024];
-            int remainingBytes = BytesToRead;
+            var stpwtch = System.Diagnostics.Stopwatch.StartNew();
 
-            //can be multi-part form
-
-            httpRequest.ConcatenateBodyContent(BodyContent,BodyContent.Length);
-
-            while (remainingBytes > 0)
+            if (0 == BodyLength)
+                return;
+            
+            int bytesRec = 0, readSoFar = 0;
+            
+            List<Byte> BByte = new List<Byte>(BodyLength);
+            for (int i = HeaderBytesToSkip; i < BodyBytesInHeader; ++i)
             {
-                int bytesRec = handler.Receive(bytes);
-                remainingBytes -= bytesRec;
-                if (remainingBytes < 0)
-                    System.Console.WriteLine("");
-                httpRequest.ConcatenateBodyContent(bytes,bytesRec);
+                ++readSoFar;
+                BByte.Add(BodyContent[i]);
             }
+
+            Int32 remaining = BodyLength - readSoFar;
+            HttpBody body = httpRequest.GetBody();
+
+            if (readSoFar < BodyLength)
+            {
+                //body contents remain to be read completely
+                do
+                {
+                    byte[] bytes = new byte[1024];
+                    bytesRec = handler.Receive(bytes);
+                    BByte.AddRange(bytes);
+                    readSoFar += bytesRec;
+                    remaining -= bytesRec;
+                    /*foreach (Byte b in bytes)
+                    {
+                        BByte.AddRange(bytes);
+                    }*/
+
+                } while (remaining != 0);
+            }
+
+            body.Body = BByte.ToArray();
+
+            stpwtch.Stop();
+            System.Console.WriteLine("Time in Copying Body :: " + stpwtch.ElapsedMilliseconds);
+            System.Console.WriteLine("Body Length :: " + BodyLength);
+            System.Console.WriteLine("Total Bytes Read :: " + readSoFar);
         }
 
         public static byte[] DefaultHookFunc (HttpRequest request)

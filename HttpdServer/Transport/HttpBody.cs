@@ -11,32 +11,55 @@ namespace HttpdServer.Transport
         private Byte[] bc;
         private Int64 m_PresentLen;
 
+        public Int64 CurrentPos
+        {
+            get { return m_PresentLen; }
+        }
+
         public void SetLengthOfBody(Int64 len)
         {
             bc = new Byte[len];
             m_PresentLen = 0;
         }
 
-        public void addBodyContent(byte[] content, Int64 len)
+        public Int32 addBodyContent(byte[] content, Int32 BytesToSkip, Int64 len)
         {
-            Int64 upto = m_PresentLen + len;
-            for (Int64 i = m_PresentLen, j = 0; i < upto; ++i, ++j)
+            try
+            {
+                Array.Copy(content, BytesToSkip, bc, m_PresentLen, len - BytesToSkip);
+                m_PresentLen += (len - BytesToSkip);
+            }
+            catch (Exception err)
+            {
+                System.Console.WriteLine(err.Message);
+            }
+
+            /*Int32 BytesRead = 0;
+
+            Int64 upto = m_PresentLen + len - BytesToSkip;
+            for (Int64 i = m_PresentLen, j = BytesToSkip; i < upto; ++i, ++j)
             {
                 try
                 {
-                    bc[i] = content[j];
-                    ++m_PresentLen;
+                    Array.Copy(content, BytesToSkip, bc, m_PresentLen, len-BytesToSkip);
+                    m_PresentLen += (len - BytesToSkip);
+                    //bc[i] = content[j];
+                    //++m_PresentLen;
+                    //++BytesRead;
                 }
                 catch (Exception err)
                 {
                     System.Console.WriteLine("Error");
                 }
-            }
+            }*/
+
+            return (Int32)(len - BytesToSkip);
         }
 
-        internal Byte[] GetBody
+        public Byte[] Body
         {
             get { return bc; }
+            set { bc = value; }
         }
     }
 }

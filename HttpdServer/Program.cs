@@ -12,6 +12,8 @@ using ConfigMgr = System.Configuration.ConfigurationManager;
 using HttpdServer.Helpers;
 using HttpdServer.Transport;
 
+using System.IO;
+
 namespace HttpdServer
 {
     public class Program
@@ -21,6 +23,8 @@ namespace HttpdServer
                 " useful other than just parsing the request. Set the function using " + 
                 " HttpStreamReader.HookFunc to make it do something interesting";
         private static Byte[] defByte = null;
+
+        public static StreamWriter writer = new StreamWriter(new FileStream("F:\\tmp\\logger.txt", FileMode.Create));
 
         //public static AppSettings GetAppSettings () { return m_appSettings; }
 
@@ -35,7 +39,7 @@ namespace HttpdServer
             response.ContentLength = (UInt64)defByte.Length;
             HttpBody body = response.Body;
             body.SetLengthOfBody(defByte.Length);
-            body.addBodyContent(defByte, defByte.Length);
+            body.addBodyContent(defByte, 0, defByte.Length);
             return response.Bytes(); 
         }
 

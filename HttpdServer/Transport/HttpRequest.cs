@@ -35,14 +35,14 @@ namespace HttpdServer.Transport
             return this;
         }
 
-        public void ConcatenateBodyContent(byte[] content, Int64 len)
+        /*public void ConcatenateBodyContent(byte[] content, Int32 BytesToSkip, Int64 len)
         {
-            m_Body.addBodyContent(content,len);
-        }
+            m_Body.addBodyContent(content,BytesToSkip,len);
+        }*/
 
-        public Byte[] GetBody()
+        public HttpBody GetBody()
         {
-            return m_Body.GetBody;
+            return m_Body;
         }
 
         public Method getMethod()

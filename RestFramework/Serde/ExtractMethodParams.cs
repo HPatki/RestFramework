@@ -20,8 +20,8 @@ namespace RestFramework.Serde
     {
         private static char[] m_PathQueryVarSplitter = { '=', '&' };
 
-        internal static object[] Extract(HttpRequest request, HttpResp response,
-            List<BaseAttribute> parameters, MediaType consumes
+        internal static object[] Extract(HttpRequest request, BodyBinaryExtractor[] BodyArguments,
+            HttpResp response,List<BaseAttribute> parameters, MediaType consumes
             )
         {
             String uri = request.getRequestURI();
@@ -74,9 +74,13 @@ namespace RestFramework.Serde
                     }
                 }
 
-                if (p is BodyParam)
+                if (p is BodyParam || p is BodyQueryParam)
                 {
-                    ParamToAdd = request.GetBody();
+                    //the body can be MultiPart Form Data. If so extract from the Body
+                    //else tje body itself denotes the data
+
+                    ParamToAdd = ExtractBodyParameter(request, BodyArguments, p); 
+                    
                 }
 
                 if (p is BodyQueryParam)
@@ -157,6 +161,22 @@ namespace RestFramework.Serde
                             break;
                         }
                     }
+                }
+            }
+
+            return toReturn;
+        }
+
+        private static Object ExtractBodyParameter(HttpRequest request, BodyBinaryExtractor[] BodyArguments, BaseAttribute p)
+        {
+            Object toReturn = null;
+            //name based lookup
+            foreach (BodyBinaryExtractor be in BodyArguments)
+            {
+                if (be.ParamName.Equals(p.getName(), StringComparison.CurrentCultureIgnoreCase))
+                {
+                    toReturn = be;
+                    break;
                 }
             }
 
