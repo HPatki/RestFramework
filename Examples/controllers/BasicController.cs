@@ -38,9 +38,16 @@ namespace RestApplication.controllers
 
         //BodyParam (JSON) usage
         [EndPointAttribute(route: "/greet/bodyparam", consumes: MediaType.APPLICATION_JSON, method:"POST")]
-        public String greetings3([BodyParam("name")]Greeting greetings)
+        public String greetings3([BodyParam()]Greeting greetings)
         {
             return "How are you doing today " + greetings.name + " " + greetings.surname + "?";
+        }
+
+        //BodyParam conventional usage
+        [EndPointAttribute(route: "/greet/bodyparam1", method: "POST")]
+        public String greetings3([BodyParam()]String greetings)
+        {
+            return "Echoing Input Body Contents " + greetings;
         }
 
         //BodyParam (JSON) usage

@@ -105,9 +105,10 @@ namespace RestFramework.Serde
                 JSON Deser = new JSON(T);
                 MemoryStream stream = null;
 
-                if (ParamType == typeof(System.Byte[]))
+                if (ParamType == typeof(BodyBinaryExtractor))
                 {
-                    stream = new MemoryStream((Byte[])ParamToAdd);
+                    var extractor = ParamToAdd as BodyBinaryExtractor;
+                    stream = new MemoryStream(extractor.FileContent);
                 }
                 else //it will always be string
                 {

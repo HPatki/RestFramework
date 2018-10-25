@@ -17,7 +17,7 @@ namespace RestApplication.controllers
         //BodyParam 
         [EndPointAttribute(route: "/file", consumes: MediaType.APPLICATION_OCTET_STREAM, 
             produces:MediaType.TEXT_PLAIN,method: "POST")]
-        public String ReadFile([BodyParam("file")]MemoryStream InputFile, HttpResponse response)
+        public String ReadFile([BodyQueryParam("file")]MemoryStream InputFile, HttpResponse response)
         {
             BinaryWriter Wrtr = new BinaryWriter (new FileStream("F:/tmp/dummy.png",FileMode.Create));
             Wrtr.Write(InputFile.ToArray());
@@ -55,7 +55,7 @@ namespace RestApplication.controllers
         //BodyParam 
         [EndPointAttribute(route: "/file/excel", consumes: MediaType.APPLICATION_OCTET_STREAM,
             produces: MediaType.TEXT_PLAIN, method: "POST")]
-        public String ReadFile1([BodyParam("file")]MemoryStream InputFile, HttpResponse response)
+        public String ReadFile1([BodyQueryParam("file")]MemoryStream InputFile, HttpResponse response)
         {
             BinaryWriter Wrtr = new BinaryWriter(new FileStream("F:/tmp/dummy.csv", FileMode.Create));
             Wrtr.Write(InputFile.ToArray());

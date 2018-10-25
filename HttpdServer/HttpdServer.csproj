@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\MethodNotImplemented.cs" />
     <Compile Include="Helpers\MediaType.cs" />
     <Compile Include="Helpers\MessageInterceptor.cs" />
     <Compile Include="Helpers\Method.cs" />

@@ -11,7 +11,7 @@ namespace RestFramework.Annotations
     [AttributeUsage (AttributeTargets.Parameter) ]
     sealed public class BodyParam : BaseAttribute
     {
-        public BodyParam(String name) : base (name)
+        public BodyParam() : base ("")
         {
             
         }

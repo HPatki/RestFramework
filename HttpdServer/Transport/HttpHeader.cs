@@ -4,13 +4,128 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 using HttpdServer.Helpers;
+using HttpdServer.Exceptions;
 
 namespace HttpdServer.Transport
 {
+    public class HttpHeaderItem : IConvertible 
+    {
+        String m_Content;
+
+        public HttpHeaderItem(String content)
+        {
+            m_Content = content;
+        }
+
+        public override string ToString()
+        {
+            return m_Content;
+        }
+
+        public bool ToBoolean(IFormatProvider provider)
+        {
+            Boolean outval;
+            Boolean.TryParse(m_Content, out outval);
+            return outval;
+        }
+
+        public TypeCode GetTypeCode()
+        {
+            return TypeCode.String;
+        }
+
+        public byte ToByte(IFormatProvider provider)
+        {
+            Byte outval;
+            Byte.TryParse(m_Content,out outval);
+            return outval;
+        }
+
+        public char ToChar(IFormatProvider provider)
+        {
+            Char outval;
+            Char.TryParse(m_Content, out outval);
+            return outval;
+        }
+
+        public DateTime ToDateTime(IFormatProvider provider)
+        {
+            throw new MethodNotImplemented("Method ToDateTime is not implemented");
+        }
+
+        public decimal ToDecimal(IFormatProvider provider)
+        {
+            throw new MethodNotImplemented("Method ToDecimal is not implemented");
+        }
+
+        public double ToDouble(IFormatProvider provider)
+        {
+            return Double.Parse(m_Content);
+        }
+
+        public short ToInt16(IFormatProvider provider)
+        {
+            return Int16.Parse(m_Content);
+        }
+
+        public int ToInt32(IFormatProvider provider)
+        {
+            return Int32.Parse(m_Content);
+        }
+
+        public long ToInt64(IFormatProvider provider)
+        {
+            return Int64.Parse(m_Content);
+        }
+
+        public sbyte ToSByte(IFormatProvider provider)
+        {
+            sbyte outval;
+            SByte.TryParse(m_Content, out outval);
+            return outval;
+        }
+
+        public float ToSingle(IFormatProvider provider)
+        {
+            return float.Parse(m_Content);
+        }
+
+        public string ToString(IFormatProvider provider)
+        {
+            return m_Content;
+        }
+
+        public object ToType(Type conversionType, IFormatProvider provider)
+        {
+            throw new MethodNotImplemented("Method ToType is not implemented");
+        }
+
+        public ushort ToUInt16(IFormatProvider provider)
+        {
+            UInt16 outval;
+            UInt16.TryParse(m_Content, out outval);
+            return outval;
+        }
+
+        public uint ToUInt32(IFormatProvider provider)
+        {
+            UInt32 outval;
+            UInt32.TryParse(m_Content, out outval);
+            return outval;
+        }
+
+        public ulong ToUInt64(IFormatProvider provider)
+        {
+            UInt64 outval;
+            UInt64.TryParse(m_Content, out outval);
+            return outval;
+        }
+    }
+
     public class HttpHeader
     {
         private static Regex m_parser = new Regex("\r\n");
-        private Dictionary<String, String> m_Headers = new Dictionary<string, string>();
+        private Dictionary<String, HttpHeaderItem> m_Headers = new Dictionary<string, HttpHeaderItem>();
         private StringBuilder m_RawContents = new StringBuilder();
         private String m_RawContentsStr = null;
         private Method m_method;
@@ -36,9 +151,10 @@ namespace HttpdServer.Transport
         public int GetLengthOfBody()
         {
             String length = null;
-            m_Headers.TryGetValue("CONTENT-LENGTH", out length);
-            if (null != length)
-                return Convert.ToInt32(length);
+            HttpHeaderItem item;
+            m_Headers.TryGetValue("CONTENT-LENGTH", out item);
+            if (null != item)
+                return Convert.ToInt32(item.ToString());
             return 0;
         }
 
@@ -50,7 +166,7 @@ namespace HttpdServer.Transport
                 String[] parts = headers[i].Split(m_HeaderSep, 2);
                 if (parts.Length > 1)
                 {   
-                    m_Headers.Add(parts[0].ToUpper(), parts[1]);
+                    m_Headers.Add(parts[0].ToUpper(), new HttpHeaderItem(parts[1]));
                 }
                 else
                 {
@@ -100,8 +216,11 @@ namespace HttpdServer.Transport
 
         public String GetHeaderValue(String header)
         {
-            String val;
-            m_Headers.TryGetValue(header.ToUpper(), out val);
+            String val = null;
+            HttpHeaderItem item;
+            m_Headers.TryGetValue(header.ToUpper(), out item);
+            if (null != item)
+                val = item.ToString();
             return val;
         }
 
