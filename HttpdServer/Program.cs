@@ -24,7 +24,7 @@ namespace HttpdServer
                 " HttpStreamReader.HookFunc to make it do something interesting";
         private static Byte[] defByte = null;
 
-        public static StreamWriter writer = new StreamWriter(new FileStream("F:\\tmp\\logger.txt", FileMode.Create));
+        public static BinaryWriter writer = new BinaryWriter(new FileStream("F:\\tmp\\logger.txt", FileMode.Create), Encoding.UTF8);
 
         //public static AppSettings GetAppSettings () { return m_appSettings; }
 

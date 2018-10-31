@@ -128,41 +128,7 @@ namespace RestFramework.Serde
             else 
             {
                 //based on T, convert
-                if ( (T == typeof (int)) || (T == typeof (long)) || (T == typeof(double))
-                    || (T == typeof(short)) || (T == typeof (char)) || (T == typeof(bool)) ) 
-                {
-                    Double a;
-                    Double.TryParse((String)ParamToAdd, out a);
-                    toReturn = Convert.ChangeType(a, T);
-                }
-                else if (T == typeof(System.String))
-                {
-                    toReturn = Convert.ChangeType(ParamToAdd, T);
-                }
-                else
-                {
-                    //check if object has a constructor taking byte
-                }
-
-                if (ParamToAdd.GetType().BaseType == typeof(System.ValueType))
-                {
-                    //??
-                }
-                else
-                {
-                    ConstructorInfo[] infor = T.GetConstructors();
-                    foreach (ConstructorInfo info in infor)
-                    {
-                        var ParamInfo = info.GetParameters();
-                        if (1 == ParamInfo.Length && ParamInfo[0].ParameterType == typeof(Byte[]))
-                        {
-                            Object[] arguments = new Object[1];
-                            arguments[0] = ParamToAdd;
-                            toReturn = info.Invoke(arguments);
-                            break;
-                        }
-                    }
-                }
+                toReturn = ExtractMethodParams.Convert(T, ParamToAdd); 
             }
 
             return toReturn;
@@ -174,7 +140,8 @@ namespace RestFramework.Serde
             //name based lookup
             foreach (BodyBinaryExtractor be in BodyArguments)
             {
-                if (be.ParamName.Equals(p.getName(), StringComparison.CurrentCultureIgnoreCase))
+                //internally all strings are being converted to UPPER case
+                if (be.ParamName.Equals(p.getName().ToUpper(), StringComparison.CurrentCultureIgnoreCase))
                 {
                     toReturn = be;
                     break;
@@ -182,6 +149,99 @@ namespace RestFramework.Serde
             }
 
             return toReturn;
+        }
+
+        private static Object Convert(Type T, Object ParamToConvert)
+        {
+            IConvertible convertible = ParamToConvert as IConvertible;
+            
+            Object toReturn = null;
+
+            if (T == typeof(Boolean))
+            {
+                toReturn = convertible.ToInt32(null);
+            }
+            else  if (T == typeof(Byte))
+            {
+                toReturn = convertible.ToInt32(null);
+            }
+            else  if (T == typeof(Char))
+            {
+                toReturn = convertible.ToChar(null);
+            }
+            else  if (T == typeof(DateTime))
+            {
+                toReturn = convertible.ToDateTime(null);
+            }
+            else  if (T == typeof(Decimal))
+            {
+                toReturn = convertible.ToDecimal(null);
+            }
+            else  if (T == typeof(Double))
+            {
+                toReturn = convertible.ToDouble(null);
+            }
+            else  if (T == typeof(Int16))
+            {
+                toReturn = convertible.ToInt16(null);
+            }
+            else  if (T == typeof(Int32))
+            {
+              toReturn = convertible.ToInt32(null);
+            }
+            else  if (T == typeof(Int64))
+            {
+               toReturn = convertible.ToInt64(null);
+            }
+            else  if (T == typeof(SByte))
+            {
+                toReturn = convertible.ToSByte(null);
+            }
+            else  if (T == typeof(Single))
+            {
+              toReturn = convertible.ToSingle(null);
+            }
+            else  if (T == typeof(String))
+            {
+              toReturn = convertible.ToString(null);
+            }
+            else  if (T == typeof(UInt16))
+            {
+                toReturn = convertible.ToUInt16(null);
+            }
+            else  if (T == typeof(UInt32))
+            {
+                toReturn = convertible.ToUInt32(null);
+            }
+            else  if (T == typeof(UInt64))
+            {
+                toReturn = convertible.ToUInt64(null);
+            }
+            else if (T is Object)
+            {
+                toReturn = convertible.ToType(T, null);
+            }
+            return toReturn;
+
+            /*if (ParamToAdd.GetType().BaseType == typeof(System.ValueType))
+            {
+                //??
+            }
+            else
+            {
+                ConstructorInfo[] infor = T.GetConstructors();
+                foreach (ConstructorInfo info in infor)
+                {
+                    var ParamInfo = info.GetParameters();
+                    if (1 == ParamInfo.Length && ParamInfo[0].ParameterType == typeof(Byte[]))
+                    {
+                        Object[] arguments = new Object[1];
+                        arguments[0] = ParamToAdd;
+                        toReturn = info.Invoke(arguments);
+                        break;
+                    }
+                }
+            }*/
         }
     }
 }

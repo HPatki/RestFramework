@@ -53,8 +53,6 @@ namespace HttpdServer.Transport
 
                     int bytesRec = handler.Receive(bytes);
                     
-                    Program.writer.WriteLine(System.Text.Encoding.UTF8.GetString(bytes));
-                    
                     runCountOfBytesRecvd += bytesRec;
                     data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
 
@@ -99,7 +97,7 @@ namespace HttpdServer.Transport
             }
             catch (Exception err)
             {
-                String rr = "Error occurred" + err.Message;
+                String rr = "Error occurred" + err.StackTrace;
                 StringBuilder strBldr = new StringBuilder();
                 strBldr.Append("HTTP/1.1 200 OK\r\n");
                 strBldr.Append("accept-ranges: bytes\r\n");
@@ -156,7 +154,7 @@ namespace HttpdServer.Transport
 
             if (0 == BodyLength)
                 return;
-            
+
             int bytesRec = 0, readSoFar = 0;
             
             List<Byte> BByte = new List<Byte>(BodyLength);
@@ -168,24 +166,27 @@ namespace HttpdServer.Transport
 
             Int32 remaining = BodyLength - readSoFar;
             HttpBody body = httpRequest.GetBody();
-
+            byte[] bytes = new byte[1024];
             if (readSoFar < BodyLength)
             {
-                //body contents remain to be read completely
+                //body contents remain to be completely read
                 do
                 {
-                    byte[] bytes = new byte[1024];
                     bytesRec = handler.Receive(bytes);
                     BByte.AddRange(bytes);
                     readSoFar += bytesRec;
                     remaining -= bytesRec;
-                    /*foreach (Byte b in bytes)
-                    {
-                        BByte.AddRange(bytes);
-                    }*/
 
                 } while (remaining != 0);
             }
+
+            foreach (Byte b in BByte)
+            {
+                Program.writer.Write(b);
+                //Program.writer.Write('\n');
+            }
+
+            Program.writer.Flush();
 
             body.Body = BByte.ToArray();
 

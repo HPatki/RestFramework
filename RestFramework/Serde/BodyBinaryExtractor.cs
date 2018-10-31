@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Reflection;
+
 using RestFramework.Exceptions;
 
 namespace RestFramework.Serde
@@ -11,6 +13,8 @@ namespace RestFramework.Serde
     {
         internal String m_ParamName;
         internal Byte[] m_FileContent;
+        private Int64 m_StartPos;
+        private Int64 m_EndPos;
 
         public String ParamName
         {
@@ -22,6 +26,18 @@ namespace RestFramework.Serde
         {
             get { return m_FileContent; }
             set { m_FileContent = value; }
+        }
+
+        public Int64 StartPos
+        {
+            get { return m_StartPos; }
+            set { m_StartPos = value; }
+        }
+
+        public Int64 EndPos
+        {
+            get { return m_EndPos; }
+            set { m_EndPos = value; }
         }
 
         public bool ToBoolean(IFormatProvider provider)
@@ -91,9 +107,26 @@ namespace RestFramework.Serde
             return System.Text.Encoding.UTF8.GetString(m_FileContent);
         }
 
-        public object ToType(Type conversionType, IFormatProvider provider)
+        virtual public object ToType(Type conversionType, IFormatProvider provider)
         {
-            throw new MethodNotImplemented("Method ToType is not implemented");
+            Object toReturn = null;
+            ConstructorInfo[] infor = conversionType.GetConstructors();
+            foreach (ConstructorInfo info in infor)
+            {
+                var ParamInfo = info.GetParameters();
+                if (3 == ParamInfo.Length && ParamInfo[0].ParameterType == typeof(Byte[]) &&
+                    ParamInfo[1].ParameterType == typeof(Int32) && ParamInfo[2].ParameterType == typeof(Int32) )
+                {
+                    Object[] arguments = new Object[3];
+                    arguments[0] = m_FileContent;
+                    arguments[1] = (Int32)this.StartPos;
+                    arguments[2] = (Int32)this.EndPos;
+                    toReturn = info.Invoke(arguments);
+                    break;
+                }
+            }
+
+            return toReturn;
         }
 
         public ushort ToUInt16(IFormatProvider provider)

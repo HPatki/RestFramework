@@ -4,13 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Reflection;
+
 namespace RestFramework.Serde
 {
     public class BodyFileExtractor : BodyBinaryExtractor
     {
-        private String m_FileName;
-        private String m_FileType;
-
+        private String  m_FileName;
+        private String  m_FileType;
+        
         public String FileName
         {
             get { return m_FileName; }
@@ -22,5 +24,6 @@ namespace RestFramework.Serde
             get { return m_FileType; }
             set { m_FileType = value; }
         }
+
     }
 }
