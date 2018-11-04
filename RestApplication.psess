@@ -67,44 +67,6 @@
       <ProjName>Examples</ProjName>
     </ProjBinary>
   </Binaries>
-  <Reports>
-    <Report>
-      <Path>RestApplication181015.vspx</Path>
-    </Report>
-    <Report>
-      <Path>RestApplication181102.vspx</Path>
-    </Report>
-    <Report>
-      <Path>RestApplication181102(1).vspx</Path>
-    </Report>
-    <Report>
-      <Path>RestApplication181102(2).vspx</Path>
-    </Report>
-    <Report>
-      <Path>RestApplication181102(3).vspx</Path>
-    </Report>
-    <Report>
-      <Path>RestApplication181102(4).vspx</Path>
-    </Report>
-    <Report>
-      <Path>RestApplication181102(5).vspx</Path>
-    </Report>
-    <Report>
-      <Path>RestApplication181102(6).vspx</Path>
-    </Report>
-    <Report>
-      <Path>RestApplication181102(7).vspx</Path>
-    </Report>
-    <Report>
-      <Path>RestApplication181102(8).vspx</Path>
-    </Report>
-    <Report>
-      <Path>RestApplication181102(9).vspx</Path>
-    </Report>
-    <Report>
-      <Path>RestApplication181103.vspx</Path>
-    </Report>
-  </Reports>
   <Launches>
     <ProjBinary>
       <Path>:PB:{7DD6104C-F235-458A-AA8C-BA9514540267}|Examples\Examples.csproj</Path>
