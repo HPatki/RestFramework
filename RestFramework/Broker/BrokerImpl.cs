@@ -16,12 +16,13 @@ using HttpdServer.Helpers;
 using RestFramework.Annotations;
 using RestFramework.Serde;
 using RestFramework.Exceptions;
+using HttpdServer.linker;
 
 using System.Text.RegularExpressions;
 
 namespace RestFramework.Broker
 {
-    sealed class BrokerImpl
+    sealed class BrokerImpl : RequestProcessor
     {
         private static Regex MultiFormPart = new Regex("multipart/form-data", RegexOptions.IgnoreCase);
 
@@ -32,7 +33,7 @@ namespace RestFramework.Broker
 
             unsafe
             {
-                fixed (byte* bdyPtr = &bdy[0])
+                fixed (byte* bdyPtr = bdy)
                 {
                     for (int i = 0; i < BodyLen - 19; ) //-19 cos we check 19 positions in case of match
                     {
@@ -89,7 +90,7 @@ namespace RestFramework.Broker
 
             unsafe
             {
-                fixed (byte* bdyPtr = &bdy[0])
+                fixed (byte* bdyPtr = bdy)
                 {
                     Boolean OpeningQuoteFound = false;
                     Boolean ClosingQuoteFound = false;
@@ -159,7 +160,7 @@ namespace RestFramework.Broker
 
             unsafe
             {
-                fixed (byte* bdyPtr = &bdy[0])
+                fixed (byte* bdyPtr = bdy)
                 {
                     Boolean SpaceBeforeType = false;
                     Boolean SpaceAfterType = false;
@@ -241,7 +242,7 @@ namespace RestFramework.Broker
 
             unsafe
             {
-                fixed (byte* bdyPtr = &bdy[0])
+                fixed (byte* bdyPtr = bdy)
                 {
                     Boolean OpeningQuoteFound = false;
                     Boolean ClosingQuoteFound = false;
@@ -332,19 +333,19 @@ namespace RestFramework.Broker
                 List<Int64> cdMarkers = GetContentDispositionStarts(bdy);
                 
                 forLoop.Stop();
-                System.Console.WriteLine ("Time for matches :: " + forLoop.ElapsedMilliseconds);
+                //System.Console.WriteLine ("Time for matches :: " + forLoop.ElapsedMilliseconds);
 
-                System.Console.WriteLine("CDMarker Size is " + cdMarkers.Count);
+                //System.Console.WriteLine("CDMarker Size is " + cdMarkers.Count);
 
                 if (cdMarkers.Count > 8)
                 {
-                    System.Console.WriteLine("");
+                    //System.Console.WriteLine("");
                 }
 
                 for (int cntr = 0; cntr < cdMarkers.Count; cntr += 2 )
                 {
-                    System.Console.WriteLine("Count is " + cntr);
-                    System.Console.WriteLine("List elements " + BodyContent.Count);
+                    //System.Console.WriteLine("Count is " + cntr);
+                    //System.Console.WriteLine("List elements " + BodyContent.Count);
                     //GetName
                     //check if content-type present, if yes get the content type
                     //and the file name
@@ -381,19 +382,19 @@ namespace RestFramework.Broker
                 extracted.FileContent = request.GetBody().Body;
                 extracted.ParamName = "";
                 extracted.StartPos = 0;
-                extracted.EndPos = request.GetBody().Body.Length;
+                extracted.EndPos = request.GetLengthOfBody();
                 BodyContent.Add(extracted);
             }
 
             return BodyContent.ToArray();
         }
 
-        public static Byte[] Process(HttpRequest Request)
+        override public Byte[] Process(HttpRequest Request)
         {
             //transform the body part
             BodyBinaryExtractor[] body = TransformBody(Request);
 
-            Byte[] responseStream = null;
+            byte[] responseStream = null;
             var response = new HttpResp();
             var mthd = Request.getMethod();
             
@@ -410,8 +411,9 @@ namespace RestFramework.Broker
                         mpr.getParamList(), mpr.Consumes);
 
                     /* Invoke using MethodInfo is way faster than a delegate
+                     *
+                     * Object retVal = mpr.DynamicInvoke(parameters);
                      */
-                    //Object retVal = mpr.DynamicInvoke(parameters);
 
                     retVal = mpr.GetMethodInfo().Invoke(mpr.GetObject(), parameters);
 
@@ -419,20 +421,20 @@ namespace RestFramework.Broker
                 catch (UnsupportedMediaType err)
                 {
                     response.StatusCode = 415;
-                    response.ContentType = MediaTypeContent.GetContentType(MediaType.TEXT_PLAIN);
+                    response.ContentType = MediaType.TEXT_PLAIN;
                     retVal = "Error during deserialising to JSON";
                 }
                 catch (Exception err)
                 {
                     response.StatusCode = 500;
-                    response.ContentType = MediaTypeContent.GetContentType(MediaType.TEXT_PLAIN);
+                    response.ContentType = MediaType.TEXT_PLAIN;
                     retVal = "Internal Error " + err.Message;
                 }
             }
             else
             {
                 response.StatusCode = 404;
-                response.ContentType = MediaTypeContent.GetContentType(MediaType.TEXT_PLAIN);
+                response.ContentType = MediaType.TEXT_PLAIN;
                 retVal = "Mapper for URL " + Request.getRequestURI() + " not found";
             }
 

@@ -44,8 +44,11 @@
   <ItemGroup>
     <Compile Include="controllers\AdvancedController.cs" />
     <Compile Include="controllers\BasicController.cs" />
+    <Compile Include="controllers\ComparisonTestWithSpringBoot.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="userdefined\RequestStatus.cs" />
+    <Compile Include="userdefined\User.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

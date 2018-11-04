@@ -83,11 +83,6 @@ namespace RestFramework.Serde
                     
                 }
 
-                if (p is BodyQueryParam)
-                {
-                    //TODO
-                }
-
                 objects.Add(ChangeType(ParamToAdd, p.getType(), consumes));
             }
 
@@ -108,7 +103,7 @@ namespace RestFramework.Serde
                 if (ParamType == typeof(BodyBinaryExtractor))
                 {
                     var extractor = ParamToAdd as BodyBinaryExtractor;
-                    stream = new MemoryStream(extractor.FileContent);
+                    stream = new MemoryStream(extractor.FileContent, (Int32)extractor.StartPos,(Int32)extractor.EndPos);
                 }
                 else //it will always be string
                 {

@@ -1,0 +1,17 @@
+ImageRuntimeVersion: v4.0.30319
+Assembly CSockets, Version=0.0.*, Culture=Invariant Language (Invariant Country): 
+	hash=SHA1, flags=PublicKey
+Assembly mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Class TCPSocket: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(SByte*): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Methods:
+    StartListening(): PrivateScope, Public, HideBySig
+    Accept(): PrivateScope, Public, HideBySig
+    ReturnClientSocket(): PrivateScope, Public, HideBySig
+    FetchData(UInt32, Byte*, Int32): PrivateScope, Public, Static, HideBySig
+    SendReply(UInt32, Byte*, Int32): PrivateScope, Public, Static, HideBySig
+    CloseClientSocket(UInt32): PrivateScope, Public, Static, HideBySig
+    InError(): PrivateScope, Public, HideBySig

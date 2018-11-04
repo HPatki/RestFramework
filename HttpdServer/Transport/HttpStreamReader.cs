@@ -12,46 +12,38 @@ namespace HttpdServer.Transport
 {
     public class HttpStreamReader
     {
+        private static Int32 Magic_Number_Buffer = 32000;
         private static Regex    m_parser = new Regex("\r\n\r\n");
-        public delegate byte[] HookFunction (HttpRequest request);
 
-        //this is set by the main program and not the caller
-        private static HookFunction m_fn = Program.DummyHookFunction; 
-
-        private static byte[] CallHook (HttpRequest req)
-        {
-            return m_fn(req);
-        }
-
-        public static HookFunction HookFunc
-        {
-            get { return m_fn; }
-            set { m_fn = value; }
-        }
-        
         public static void ListenSocketHandler(Object state) //have to confirm to delegate signature
         {
-            var StartMain = System.Diagnostics.Stopwatch.StartNew();
-
-            SystemSocket handler = (SystemSocket)state;
+            UInt32 handler = (UInt32)state;
             HttpRequest  httpRequest = new HttpRequest();
 
             try
             {
                 int runCountOfBytesRecvd = 0;
 
-                String data = null, payload = null;
+                String data = null;
                 
-                byte[] bytes = new byte[8096];
+                byte[] bytes = new Byte[Magic_Number_Buffer];
 
                 // An incoming connection needs to be processed.
                 Boolean BodyProcessed = false;
+                Int32 bytesRec;
                 while (false == BodyProcessed)
                 {
                     if (Program.m_maxPayLoad <= runCountOfBytesRecvd)
                         break; //error
 
-                    int bytesRec = handler.Receive(bytes);
+                    //int bytesRec = handler.Receive(bytes);
+                    unsafe
+                    {
+                        fixed (Byte* hPtr = bytes)
+                        {
+                            bytesRec = TCPSocket.FetchData(handler, hPtr, Magic_Number_Buffer);
+                        }
+                    }
                     
                     runCountOfBytesRecvd += bytesRec;
                     data += Encoding.UTF8.GetString(bytes, 0, bytesRec);
@@ -75,25 +67,17 @@ namespace HttpdServer.Transport
                     }
                 }
 
-                Byte[] ret = CallHook(httpRequest);
-                int sent = 0, start =0, remaining = ret.Length ;
-                do
-                {
-                    sent = handler.Send(ret, start, remaining, System.Net.Sockets.SocketFlags.None);
-                    if (sent < remaining)
-                    {
-                        start = sent;
-                        remaining = remaining - sent;
-                    }
-                    else
-                    {
-                        remaining = remaining - sent;
-                    }
 
-                } while (remaining > 0);
-                
-                StartMain.Stop();
-                System.Console.WriteLine("Main loop time " + StartMain.ElapsedMilliseconds);
+                Byte[] ret = Program.Processor.Process (httpRequest);
+                int sent = 0, start =0, remaining = ret.Length ;
+
+                unsafe
+                {
+                    fixed (Byte* sptr = ret)
+                    {
+                        TCPSocket.SendReply(handler, sptr, ret.Length);
+                    }
+                }
             }
             catch (Exception err)
             {
@@ -116,28 +100,30 @@ namespace HttpdServer.Transport
                 strBldr.Append("X-Firefox-Spdy: h2\r\n\r\n");
                 strBldr.Append(rr);
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(strBldr.ToString());
-                handler.Send(msg);
+                //handler.Send(msg);
+                unsafe
+                {
+                    fixed (Byte* sptr = msg)
+                    {
+                        TCPSocket.SendReply(handler, sptr, msg.Length);
+                    }
+                }
             }
             finally
             {
                 try
                 {
-                    //wait till all the data is sent
-                    LingerOption linger = new LingerOption(true, 5); 
-                    handler.LingerState = linger;
-                    handler.Disconnect(false);
-                    //handler = null;
-                    //handler.Close(5);
+                    TCPSocket.CloseClientSocket(handler);
                 }
                 catch (Exception err)
                 {
                     System.Console.WriteLine("error disconnecting the socket::" + err.Message);
-                    Environment.Exit(-1);
                 }
             }
+
         }
 
-        private static void ExtractBody(Byte[] bytes, Int32 BodyBytesInHeader, SystemSocket Handler, HttpRequest httpRequest,
+        private static void ExtractBody(Byte[] bytes, Int32 BodyBytesInHeader, /*SystemSocket*/UInt32 Handler, HttpRequest httpRequest,
                                  Int32 HeaderBytesToSkip,
                                  Int32 BodyLength)
         {
@@ -147,11 +133,10 @@ namespace HttpdServer.Transport
             ReadBody(Handler, httpRequest, bytes, BodyBytesInHeader, BodyLength, HeaderBytesToSkip);
         }
 
-        private static void ReadBody(SystemSocket handler, HttpRequest httpRequest,
-                                byte[] BodyContent, Int32 BodyBytesInHeader, Int32 BodyLength, Int32 HeaderBytesToSkip)
+        private static void ReadBody(UInt32 handler, HttpRequest httpRequest,
+                                    byte[] BodyContent, Int32 BodyBytesInHeader, 
+                                    Int32 BodyLength, Int32 HeaderBytesToSkip)
         {
-            var stpwtch = System.Diagnostics.Stopwatch.StartNew();
-
             if (0 == BodyLength)
                 return;
 
@@ -166,13 +151,20 @@ namespace HttpdServer.Transport
 
             Int32 remaining = BodyLength - readSoFar;
             HttpBody body = httpRequest.GetBody();
-            byte[] bytes = new byte[1024];
+            byte[] bytes = new byte[Magic_Number_Buffer];
             if (readSoFar < BodyLength)
             {
                 //body contents remain to be completely read
                 do
                 {
-                    bytesRec = handler.Receive(bytes);
+                    //bytesRec = handler.Receive(bytes);
+                    unsafe
+                    {
+                        fixed (Byte* sptr = bytes)
+                        {
+                            TCPSocket.SendReply(handler, sptr, Magic_Number_Buffer);
+                        }
+                    }
                     BByte.AddRange(bytes);
                     readSoFar += bytesRec;
                     remaining -= bytesRec;
@@ -180,20 +172,8 @@ namespace HttpdServer.Transport
                 } while (remaining != 0);
             }
 
-            foreach (Byte b in BByte)
-            {
-                Program.writer.Write(b);
-                //Program.writer.Write('\n');
-            }
-
-            Program.writer.Flush();
-
             body.Body = BByte.ToArray();
 
-            stpwtch.Stop();
-            System.Console.WriteLine("Time in Copying Body :: " + stpwtch.ElapsedMilliseconds);
-            System.Console.WriteLine("Body Length :: " + BodyLength);
-            System.Console.WriteLine("Total Bytes Read :: " + readSoFar);
         }
 
         public static byte[] DefaultHookFunc (HttpRequest request)

@@ -12,6 +12,21 @@ using HttpdServer.Transport;
 
 namespace RestApplication
 {
+    class Base
+    {
+        public void somefunc()
+        {
+
+        }
+    }
+
+    class Derived : Base
+    {
+        public void somefunc()
+        {
+
+        }
+    }
     [DataContract]
     class UserInfo 
     {
@@ -40,6 +55,11 @@ namespace RestApplication
     {
         static void Main(string[] args)
         {
+            Int32 port = 15990;
+            String prt = port.ToString();
+            SByte[] sprt = new SByte[prt.Length];
+            for (int i = 0; i < prt.Length; ++i)
+                sprt[i] = (sbyte)prt[i];
             RestFramework.Program.createFactories();
         }
     }

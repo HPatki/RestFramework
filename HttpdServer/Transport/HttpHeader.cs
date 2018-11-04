@@ -150,11 +150,9 @@ namespace HttpdServer.Transport
 
         public int GetLengthOfBody()
         {
-            String length = null;
-            HttpHeaderItem item;
-            m_Headers.TryGetValue("CONTENT-LENGTH", out item);
-            if (null != item)
-                return Convert.ToInt32(item.ToString());
+            String val = GetHeaderValue("Content-Length");
+            if (null != val)
+                return Convert.ToInt32(val);
             return 0;
         }
 
@@ -166,7 +164,7 @@ namespace HttpdServer.Transport
                 String[] parts = headers[i].Split(m_HeaderSep, 2);
                 if (parts.Length > 1)
                 {   
-                    m_Headers.Add(parts[0].ToUpper(), new HttpHeaderItem(parts[1]));
+                    m_Headers.Add(parts[0], new HttpHeaderItem(parts[1]));
                 }
                 else
                 {
@@ -218,9 +216,16 @@ namespace HttpdServer.Transport
         {
             String val = null;
             HttpHeaderItem item;
-            m_Headers.TryGetValue(header.ToUpper(), out item);
-            if (null != item)
-                val = item.ToString();
+            Dictionary<String,HttpHeaderItem>.KeyCollection indv =  m_Headers.Keys;
+            foreach (KeyValuePair<String,HttpHeaderItem>  s in m_Headers)
+            {
+                if (s.Key.Equals (header,StringComparison.InvariantCultureIgnoreCase))
+                {
+                    val = s.Value.ToString();
+                    break;
+                }
+            }
+           
             return val;
         }
 

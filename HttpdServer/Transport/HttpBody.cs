@@ -22,6 +22,11 @@ namespace HttpdServer.Transport
             m_PresentLen = 0;
         }
 
+        public void SetBodyContent(Byte[] content)
+        {
+            bc = content;
+        }
+
         public Int32 addBodyContent(byte[] content, Int32 BytesToSkip, Int64 len)
         {
             try

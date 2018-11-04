@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
+using HttpdServer.Helpers;
+
 namespace HttpdServer.Transport
 {
     public class HttpResponse 
@@ -12,6 +14,7 @@ namespace HttpdServer.Transport
         private HttpEntityHeader    m_EntityHeader;
         private HttpResponseHeader  m_ResponseHeader;
         private HttpBody            m_Body;
+        private MediaType m_MediaType;
 
         public HttpResponse()
             //: base("HttpResponse")
@@ -34,10 +37,11 @@ namespace HttpdServer.Transport
             set { m_EntityHeader.ContentLength = value; }
         }
 
-        public String ContentType
+        public MediaType ContentType
         {
-            get { return m_EntityHeader.ContentType; }
-            set { m_EntityHeader.ContentType = value; }
+            get { return m_MediaType; }
+            set { m_MediaType = value; }
+         
         }
 
         public Int32 StatusCode
@@ -65,8 +69,8 @@ namespace HttpdServer.Transport
         public byte[] Bytes()
         {   
             StringBuilder strBldr = new StringBuilder();
-            strBldr.Append(m_StatusDesc+"\r\n");
-            strBldr.Append("content-type: " + m_EntityHeader.ContentType + "\r\n");
+            strBldr.Append(m_StatusDesc);
+            strBldr.Append(m_EntityHeader.ContentType);
             strBldr.Append("content-Length: " + m_EntityHeader.ContentLength + "\r\n");
             foreach (KeyValuePair<String, Object> kvPair in m_ResponseHeader)
             {

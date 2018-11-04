@@ -5,10 +5,12 @@ using System.Net.NetworkInformation;
 using System.Threading;
 using SystemSocket = System.Net.Sockets.Socket;
 
+
 namespace HttpdServer.Transport
 {
     internal class Socket : IDisposable
     {
+        private TCPSocket m_sock;
         private IPHostEntry                 m_ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
         private IPAddress                   m_ipAddress;
         private IPEndPoint                  m_ipEndPoint;
@@ -33,39 +35,47 @@ namespace HttpdServer.Transport
             m_ipEndPoint = new IPEndPoint(m_ipAddress, m_port);
         }
 
-        internal static void StarterFunction(Object dummy)
-        {
-            SystemSocket handler = (SystemSocket)dummy;
-            String rr = "Dummy MEssage";
-            System.Text.StringBuilder strBldr = new System.Text.StringBuilder();
-            strBldr.Append("HTTP/1.1 200 OK\r\n");
-            strBldr.Append("accept-ranges: bytes\r\n");
-            strBldr.Append("vary: Accept-Encoding, Origin\r\n");
-            strBldr.Append("content-encoding: gzip\r\n");
-            strBldr.Append("content-type: text/plain; charset=UTF-8\r\n");
-            strBldr.Append("content-length:" + rr.Length * 2 + "\r\n");
-            strBldr.Append("date: Fri, 15 Jun 2018 07:47:08 GMT\r\n");
-            strBldr.Append("expires: Sat, 15 Jun 2019 07:47:08 GMT\r\n");
-            strBldr.Append("last-modified: Wed, 13 Jun 2018 16:59:27 GMT\r\n");
-            strBldr.Append("x-content-type-options: nosniff\r\n");
-            strBldr.Append("server: sffe\r\n");
-            strBldr.Append("x-xss-protection: 1; mode=block\r\n");
-            strBldr.Append("cache-control: public, immutable, max-age=31536000\r\n");
-            strBldr.Append("age: 51722\r\n");
-            strBldr.Append("X-Firefox-Spdy: h2\r\n\r\n");
-            strBldr.Append(rr);
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(strBldr.ToString());
-            handler.Send(msg);
-            handler.Disconnect(false);
-        }
-
         public void StartListening(int incomingBuffer=1000)
         {
+            String prt = m_port.ToString();
+            SByte[] sprt = new SByte[prt.Length];
+            for (int i = 0; i < prt.Length; ++i)
+                sprt[i] = (sbyte)prt[i];
+
+            unsafe
+            {
+                fixed (SByte* ppp = sprt)
+                {
+                    m_sock = new TCPSocket(ppp);
+                }
+            }
+
+            ThreadPool.SetMaxThreads(40, 40);
+            ThreadPool.SetMinThreads(40, 40);
+
+            if (false == m_sock.InError())
+                m_sock.StartListening();
+
+            while (m_sock.Accept())
+            {
+                if (true == m_sock.InError())
+                {
+                    continue;
+                }
+
+                UInt32 handler = m_sock.ReturnClientSocket();
+
+                var ThreadMain = System.Diagnostics.Stopwatch.StartNew();
+                //ThreadPool.QueueUserWorkItem(Socket.StarterFunction, handler);
+                ThreadPool.QueueUserWorkItem(HttpStreamReader.ListenSocketHandler, handler);
+                ThreadMain.Stop();
+            }
+            
             // Create a TCP/IP socket.  
-            m_listeningSocket = new SystemSocket(m_ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            //m_listeningSocket = new SystemSocket(m_ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             // Bind the socket to the local endpoint and listen for incoming connections.  
-            try
+            /*try
             {
                 m_listeningSocket.Bind(m_ipEndPoint);
                 m_listeningSocket.Listen(incomingBuffer);
@@ -84,7 +94,7 @@ namespace HttpdServer.Transport
                     //ThreadPool.QueueUserWorkItem(Socket.StarterFunction, handler);
                     ThreadPool.QueueUserWorkItem(HttpStreamReader.ListenSocketHandler, handler);
                     ThreadMain.Stop();
-                    System.Console.WriteLine("Thread Time " + ThreadMain.ElapsedMilliseconds);
+                    System.Console.WriteLine("Request Time " + ThreadMain.ElapsedMilliseconds);
                     
                     //log
                     //EndPoint endpt = handler.LocalEndPoint;
@@ -100,7 +110,7 @@ namespace HttpdServer.Transport
             {
                 Console.WriteLine(e.ToString());
                 Environment.Exit(-1);
-            }
+            }*/
 
         }
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HttpdServer.Transport;
+using HttpdServer.Helpers;
 
 namespace RestFramework.Annotations
 {
@@ -60,7 +61,7 @@ namespace RestFramework.Annotations
             set { m_HttpResponse.ContentLength = value; }
         }
 
-        public String ContentType
+        public MediaType ContentType
         {
             get { return m_HttpResponse.ContentType; }
             set { m_HttpResponse.ContentType = value; }
